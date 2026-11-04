@@ -6,7 +6,7 @@
 
 # Emoji Anywhere
 
-### Type `:fire` → get 🔥. In every app on Windows.
+### Type `:fire:` → get 🔥. In every app on Windows.
 
 Discord style emoji autocomplete for Notepad, VS Code, Chrome, Word, WhatsApp, Slack, Discord and anything else you type in.
 Free, open source, and it never touches the internet.
@@ -30,9 +30,10 @@ On Discord you type `:skull:` and it just works. Then you switch to WhatsApp, Wo
 Emoji Anywhere fixes that. Same shortcodes, every app, no clicking.
 
 ```
-:sob      →  😭
-:fire:    →  🔥   (full shortcode converts instantly)
-:sad      →  😢 😭 😞   (search by meaning, not just name)
+:fire:    →  🔥   (converts the moment you close it)
+:skull:   →  💀
+:sob:     →  😭
+:sad      →  😢 😭 😞   (not sure of the name? search by meaning)
 ```
 
 ## How it works
