@@ -1,38 +1,114 @@
+<!-- TODO before launch: remove the status note below, add demo.gif to docs/, uncomment the demo line, set up the GitHub Actions release build, and re-check every claim here against the real app. -->
+
+> **🚧 Status: in development.** Not ready to download yet. Star the repo to get notified when v1 drops.
+
+<div align="center">
+
 # Emoji Anywhere
 
-Discord style emoji autocomplete for every app on Windows.
+### Type `:fire` → get 🔥. In every app on Windows.
 
-Type `:fire` in Notepad, VS Code, Chrome, Word, WhatsApp or anywhere else you type, pick from the popup, and get 🔥.
+Discord style emoji autocomplete for Notepad, VS Code, Chrome, Word, WhatsApp, Slack, Discord and anything else you type in.
+Free, open source, and it never touches the internet.
 
-> **Status:** work in progress. Not ready to download yet.
+<!-- ![Emoji Anywhere demo](docs/demo.gif) -->
 
-## How it will work
+[**Download for Windows**](../../releases/latest) · [How it works](#how-it-works) · [Privacy](#privacy-you-can-check)
 
-- Type `:` followed by 2 or more letters. A small popup shows matching emojis at your text cursor.
-- Arrow keys to move, Enter or Tab to insert, Esc to close.
-- Type a full shortcode like `:fire:` and it converts instantly.
-- Uses the shortcodes you already know from Discord, Slack and GitHub, plus keywords (`:sad` finds 😢 😭 😞).
-- Learns what you use most and ranks it first.
+![Windows 10 and 11](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?logo=windows&logoColor=white)
+![License MIT](https://img.shields.io/badge/license-MIT-green)
+![No internet](https://img.shields.io/badge/internet-never-black)
 
-## Privacy
+</div>
 
-Privacy is the main point of this app.
+---
 
-- No internet connection. The app contains no networking code.
-- No accounts, no tracking, no analytics.
-- It never saves what you type. It only remembers which emojis you picked, so it can rank them.
-- Open source, so you can check all of this yourself.
+## You already know the shortcodes. Now they work everywhere.
+
+On Discord you type `:skull:` and it just works. Then you switch to WhatsApp, Word or your code editor, and you're back to opening a menu and scrolling for the right face.
+
+Emoji Anywhere fixes that. Same shortcodes, every app, no clicking.
+
+```
+:sob      →  😭
+:fire:    →  🔥   (full shortcode converts instantly)
+:sad      →  😢 😭 😞   (search by meaning, not just name)
+```
+
+## How it works
+
+1. Type `:` and at least 2 letters, anywhere you can type.
+2. A small popup appears right at your text cursor.
+3. Keep typing to narrow it down, use the arrow keys to pick, press **Enter** or **Tab**.
+4. Your `:query` turns into the emoji. That's it.
+
+Press **Esc** to close the popup and keep typing normally.
+
+## Why it feels invisible
+
+- **Gets out of your way.** It only triggers when `:` comes after a space or at the start of a line, so `10:30`, `https://` and `C:\` never open it.
+- **Never steals focus.** The popup shows up, you keep typing in your app.
+- **Learns you.** The emojis you use most rank first.
+- **Knows Discord, Slack and GitHub shortcodes**, plus keywords and tags.
+- **Stays out of password fields**, always.
+- **Ignored apps list** for games, terminals or anything you want left alone.
+- **Your clipboard is safe.** If an app needs the emoji pasted in, your clipboard gets put back right after.
+- **Looks native.** Follows your Windows light or dark mode, Windows 11 style.
+
+## Privacy you can check
+
+An app that sees your keyboard has to earn your trust. Here's how this one does it:
+
+| Promise | How you can check |
+|---|---|
+| No internet, ever | The code has no networking at all. Search the repo for `HttpClient`, `WebRequest` or `Socket` and you'll find nothing. Or block it in your firewall and watch it keep working. |
+| Never saves what you type | Typed text only lives in memory while the popup is open, then it's gone. The only file it writes is your settings and a count of which emojis you picked. |
+| No accounts, no tracking | There's nothing to sign up for and nothing to send data to. |
+| The download matches the code | Release builds are made by GitHub Actions straight from this public code. |
+
+Everything is open source under the MIT license. Read every line.
+
+## Tray menu
+
+Emoji Anywhere lives in your system tray:
+
+- Turn it on or off
+- Pause for 1 hour
+- Settings: start with Windows, ignored apps, how many results to show, popup size
+- Quit
+
+## FAQ
+
+**Why does it need keyboard access?**
+To notice when you type `:`. That's the whole trick. It ignores everything else you type and never stores it.
+
+**Will it work in games?**
+It's meant to stay out of games. Add any game to the ignored apps list and it won't react there at all.
+
+**Does it work in apps running as administrator?**
+Windows doesn't let normal apps read keys typed into admin windows, so not unless you run Emoji Anywhere as admin too.
+
+**Is it really free?**
+Yes. No ads, no premium version, no catch.
 
 ## Build from source
 
 Needs the [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) on Windows 10 or 11.
 
 ```
+git clone https://github.com/ShakeelIrfan/emoji-anywhere.git
+cd emoji-anywhere
 dotnet build src/EmojiAnywhere
 ```
 
-## License
+## Contributing
 
-MIT. See [LICENSE](LICENSE).
+Found a missing shortcode or a bug? Open an issue or a pull request.
 
-Made by Shakeel.
+---
+
+<div align="center">
+
+Made by **Shakeel** · If it saved you a scroll, drop a ⭐
+
+</div>
