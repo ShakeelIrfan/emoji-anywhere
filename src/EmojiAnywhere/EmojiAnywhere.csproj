@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>EmojiAnywhere</AssemblyName>
+    <RootNamespace>EmojiAnywhere</RootNamespace>
+    <Version>0.1.0</Version>
+    <Product>Emoji Anywhere</Product>
+    <Authors>Shakeel Irfan</Authors>
+  </PropertyGroup>
+
+</Project>
