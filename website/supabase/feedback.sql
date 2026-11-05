@@ -14,6 +14,20 @@ create table if not exists public.emoji_feedback (
 -- and only you can read it from the Supabase dashboard.
 alter table public.emoji_feedback enable row level security;
 
+-- Hard backstop against floods: at most 60 answers per minute in total, whatever the server does
+create or replace function public.emoji_feedback_rate_cap() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  if (select count(*) from public.emoji_feedback where created_at > now() - interval '1 minute') >= 60 then
+    raise exception 'feedback rate cap reached' using errcode = 'P0001';
+  end if;
+  return new;
+end $$;
+drop trigger if exists emoji_feedback_rate_cap on public.emoji_feedback;
+create trigger emoji_feedback_rate_cap before insert on public.emoji_feedback
+  for each row execute function public.emoji_feedback_rate_cap();
+create index if not exists emoji_feedback_created_at on public.emoji_feedback (created_at desc);
+
 -- Handy summary views for the dashboard
 create or replace view public.emoji_feedback_summary as
   select kind, answer, count(*) as total, max(created_at) as latest

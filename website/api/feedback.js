@@ -11,20 +11,36 @@ const ANSWERS = {
   heard: ["instagram", "tiktok", "youtube", "reddit", "discord", "friend", "search", "github", "other"],
 };
 
-// Light abuse guard: at most 8 posts per minute per address, kept only in memory and never written anywhere
+// Light abuse guard: at most 8 posts per minute per address, kept only in memory and never written anywhere.
+// Each server copy has its own memory, so the real backstop is the per-minute cap in the database (feedback.sql).
 const hits = new Map();
+const WINDOW = 60_000;
 function tooMany(key) {
   const now = Date.now();
-  const recent = (hits.get(key) || []).filter((t) => now - t < 60_000);
+  if (hits.size > 5000) {
+    // Drop only entries whose minute has passed. Never wipe active limits.
+    for (const [k, times] of hits) if (now - times[times.length - 1] >= WINDOW) hits.delete(k);
+  }
+  const recent = (hits.get(key) || []).filter((t) => now - t < WINDOW);
+  if (recent.length >= 8) { hits.set(key, recent); return true; }
+  if (hits.size > 10000 && !hits.has(key)) return true; // still flooded with fresh addresses: refuse new ones for now
   recent.push(now);
   hits.set(key, recent);
-  if (hits.size > 5000) hits.clear();
-  return recent.length > 8;
+  return false;
 }
+
+// Only accept posts from our own pages
+const ALLOWED_ORIGINS = new Set(["https://emoji-anywhere.vercel.app"]);
 
 module.exports = async (req, res) => {
   res.setHeader("Cache-Control", "no-store");
   if (req.method !== "POST") { res.setHeader("Allow", "POST"); return res.status(405).json({ error: "Use POST." }); }
+
+  const origin = String(req.headers.origin || "");
+  const isPreview = /^https:\/\/emoji-anywhere-[a-z0-9-]+-devby-shakeel\.vercel\.app$/.test(origin);
+  if (!ALLOWED_ORIGINS.has(origin) && !isPreview) return res.status(403).json({ error: "Not allowed." });
+  if (!String(req.headers["content-type"] || "").startsWith("application/json")) return res.status(415).json({ error: "Send JSON." });
+  if (Number(req.headers["content-length"] || 0) > 2048) return res.status(413).json({ error: "Too large." });
 
   const ip = String(req.headers["x-forwarded-for"] || "").split(",")[0].trim();
   if (tooMany(ip)) return res.status(429).json({ error: "Too many requests. Try again in a minute." });

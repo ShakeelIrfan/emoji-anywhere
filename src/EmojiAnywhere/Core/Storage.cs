@@ -65,7 +65,21 @@ public sealed class Settings
     // Apps that reject typed unicode and need the clipboard paste method
     public List<string> PasteModeApps { get; set; } = new();
 
-    public static Settings Load() => AppPaths.Load<Settings>("settings.json");
+    public static Settings Load() => AppPaths.Load<Settings>("settings.json").Sanitized();
+
+    // A hand edited or damaged settings file can't break the app: values are pulled back into safe ranges
+    private Settings Sanitized()
+    {
+        MaxResults = Math.Clamp(MaxResults, 1, 12);
+        PopupScale = double.IsFinite(PopupScale) ? Math.Clamp(PopupScale, 0.7, 2.0) : 1.0;
+        IgnoredApps = CleanList(IgnoredApps);
+        PasteModeApps = CleanList(PasteModeApps);
+        return this;
+    }
+
+    private static List<string> CleanList(List<string>? list) =>
+        (list ?? new()).Where(s => !string.IsNullOrWhiteSpace(s) && s.Length <= 100)
+            .Select(s => s.Trim()).Distinct(StringComparer.OrdinalIgnoreCase).Take(200).ToList();
 
     // Adds or removes the "start with Windows" entry for the current user
     public static void ApplyStartup(bool on)

@@ -1,0 +1,11 @@
+# Keeps the app's packages and the build workflow's actions up to date with security fixes
+version: 2
+updates:
+  - package-ecosystem: nuget
+    directory: /src/EmojiAnywhere
+    schedule:
+      interval: weekly
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
