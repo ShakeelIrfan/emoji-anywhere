@@ -40,10 +40,22 @@ jobs:
       - name: Publish standalone exe (no install needed)
         run: dotnet publish src/EmojiAnywhere -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o out/standalone
 
+      - name: Build installer
+        shell: pwsh
+        run: |
+          $version = if ($env:GITHUB_REF -like 'refs/tags/v*') { $env:GITHUB_REF_NAME.TrimStart('v') } else { '0.0.0' }
+          $iscc = @("${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe", "$env:ProgramFiles\Inno Setup 6\ISCC.exe") | Where-Object { Test-Path $_ } | Select-Object -First 1
+          if (-not $iscc) {
+            choco install innosetup -y --no-progress
+            $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          }
+          & $iscc installer/EmojiAnywhere.iss "/DAppVersion=$version" "/DSourceExe=$PWD\out\standalone\EmojiAnywhere.exe"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
       - name: Collect files
         shell: pwsh
         run: |
-          New-Item -ItemType Directory dist | Out-Null
+          New-Item -ItemType Directory dist -Force | Out-Null
           Copy-Item out/small/EmojiAnywhere.exe dist/EmojiAnywhere.exe
           Copy-Item out/standalone/EmojiAnywhere.exe dist/EmojiAnywhere-standalone.exe
           Get-ChildItem dist/*.exe | ForEach-Object {

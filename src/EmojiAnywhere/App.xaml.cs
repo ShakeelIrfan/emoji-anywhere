@@ -34,6 +34,17 @@ public partial class App : Application
         _hook = new KeyboardHook(controller.OnKey, controller.OnClick);
         _tray = new TrayHost(settings, controller, Shutdown);
 
+        // Keep the "start with Windows" entry pointing at this exe, even if it was moved.
+        // Skipped for a custom data folder (portable copies and tests should never register).
+        if (!AppPaths.IsCustomFolder) SettingsWindow.ApplyStartup(settings.StartWithWindows);
+
+        if (!settings.FirstRunDone)
+        {
+            _tray.ShowWelcome();
+            settings.FirstRunDone = true;
+            settings.Save();
+        }
+
         // Loading the emoji list leaves temporary data behind. Clean it up once things settle.
         MemoryTrim.Schedule(TimeSpan.FromSeconds(3));
     }

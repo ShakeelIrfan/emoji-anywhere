@@ -53,6 +53,11 @@ public sealed class TrayHost : IDisposable
         Refresh();
     }
 
+    public void ShowWelcome() =>
+        _icon.ShowBalloonTip(6000, "Emoji Anywhere is running",
+            "Type : and a few letters in any app, like :fire. It starts with Windows. Right click the tray icon for settings.",
+            ToolTipIcon.None);
+
     private void OpenSettings()
     {
         if (_settingsWindow != null) { _settingsWindow.Activate(); return; }

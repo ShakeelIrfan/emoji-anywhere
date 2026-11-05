@@ -7,6 +7,8 @@ namespace EmojiAnywhere.Core;
 // We never save typed text. Only settings and which emojis were picked.
 internal static class AppPaths
 {
+    public static bool IsCustomFolder => !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("EMOJIANYWHERE_DATA"));
+
     public static string Folder
     {
         get
@@ -49,7 +51,8 @@ internal static class AppPaths
 public sealed class Settings
 {
     public bool Enabled { get; set; } = true;
-    public bool StartWithWindows { get; set; } = false;
+    public bool StartWithWindows { get; set; } = true; // a tray helper is only useful if it is always running
+    public bool FirstRunDone { get; set; } = false;
     public int MaxResults { get; set; } = 6;
     public double PopupScale { get; set; } = 1.0;
 
