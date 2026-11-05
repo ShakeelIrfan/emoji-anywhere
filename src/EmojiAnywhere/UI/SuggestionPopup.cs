@@ -84,7 +84,8 @@ public sealed class SuggestionPopup : Window
     {
         if (!IsVisible) return;
         base.Hide();
-        MemoryTrim.Schedule(TimeSpan.FromSeconds(5));
+        // Wait for a real pause, so the cleanup never lands while someone is still typing
+        MemoryTrim.Schedule(TimeSpan.FromSeconds(30));
     }
 
     private UIElement Row(EmojiEntry e, int index, double scale)
