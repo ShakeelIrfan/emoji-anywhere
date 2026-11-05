@@ -8,7 +8,7 @@
 
 ### Type `:fire:` → get 🔥. In every app on Windows.
 
-Discord style emoji autocomplete for Notepad, VS Code, Chrome, Word, WhatsApp, Slack, Discord and anything else you type in.
+Discord style emoji autocomplete for the apps you type in. Built to work anywhere you can type ([see where it's tested](docs/TESTING.md)).
 Free, open source, and it never touches the internet.
 
 <!-- ![Emoji Anywhere demo](docs/demo.gif) -->
@@ -107,6 +107,10 @@ git clone https://github.com/ShakeelIrfan/emoji-anywhere.git
 cd emoji-anywhere
 dotnet build src/EmojiAnywhere
 ```
+
+## Tests
+
+`tests/SearchTest` checks the emoji list and search on every push. `tests/LiveTest` runs the real app and types into windows it opens itself (a text box, Edge, Chrome, VS Code). See [tests/README.md](tests/README.md) and the latest [results](docs/TESTING.md).
 
 ## Contributing
 

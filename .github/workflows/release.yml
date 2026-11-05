@@ -31,6 +31,9 @@ jobs:
       - name: Build
         run: dotnet build src/EmojiAnywhere -c Release
 
+      - name: Search test
+        run: dotnet run --project tests/SearchTest -c Release
+
       - name: Publish small exe (needs the free .NET 8 Desktop Runtime)
         run: dotnet publish src/EmojiAnywhere -c Release -r win-x64 --self-contained false -p:PublishSingleFile=true -o out/small
 
