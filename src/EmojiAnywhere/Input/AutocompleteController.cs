@@ -32,6 +32,9 @@ public sealed class AutocompleteController
 
     public bool Paused { get; set; }
 
+    // The last window you typed in, so the tray menu can offer "Ignore this app"
+    public IntPtr LastTypedWindow => _lastForeground;
+
     public AutocompleteController(EmojiIndex index, UsageStore usage, Settings settings, SuggestionPopup popup)
     {
         _index = index; _usage = usage; _settings = settings; _popup = popup;

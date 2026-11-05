@@ -36,7 +36,7 @@ public partial class App : Application
 
         // Keep the "start with Windows" entry pointing at this exe, even if it was moved.
         // Skipped for a custom data folder (portable copies and tests should never register).
-        if (!AppPaths.IsCustomFolder) SettingsWindow.ApplyStartup(settings.StartWithWindows);
+        if (!AppPaths.IsCustomFolder) Settings.ApplyStartup(settings.StartWithWindows);
 
         if (!settings.FirstRunDone)
         {

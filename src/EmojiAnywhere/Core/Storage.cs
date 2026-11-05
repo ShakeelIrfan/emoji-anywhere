@@ -66,6 +66,18 @@ public sealed class Settings
     public List<string> PasteModeApps { get; set; } = new();
 
     public static Settings Load() => AppPaths.Load<Settings>("settings.json");
+
+    // Adds or removes the "start with Windows" entry for the current user
+    public static void ApplyStartup(bool on)
+    {
+        try
+        {
+            using var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", true);
+            if (on) key?.SetValue("EmojiAnywhere", $"\"{Environment.ProcessPath}\"");
+            else key?.DeleteValue("EmojiAnywhere", false);
+        }
+        catch { }
+    }
     public void Save() => AppPaths.Save("settings.json", this);
 }
 
