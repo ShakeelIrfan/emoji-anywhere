@@ -63,7 +63,9 @@ public sealed class AutocompleteController
             if (!altGr && (k.Ctrl || k.Alt || k.Win))
             {
                 if (IsModifier(k.Vk)) return false; // just pressing Shift, Ctrl or Alt changes nothing
-                ResetLocked(); _atBoundary = false;
+                // After Ctrl+A, Ctrl+V and similar we can't know what is before the cursor.
+                // Allow the popup: it still needs ":" plus two letters to show anything.
+                ResetLocked(); _atBoundary = true;
                 return false;
             }
 
@@ -179,6 +181,7 @@ public sealed class AutocompleteController
     private void TrackBoundary(KeyPress k)
     {
         if (k.Vk == Win32.VK_RETURN || k.Char is ' ' or '\t' or '\r' or '\n') _atBoundary = true;
+        else if (k.Vk is Win32.VK_BACK or 0x2E /* Delete */) _atBoundary = true; // unknown what is left, so allow it
         else if (k.Char != null) _atBoundary = false;
         else if (k.Vk is Win32.VK_LEFT or Win32.VK_RIGHT or Win32.VK_UP or Win32.VK_DOWN) _atBoundary = false;
     }
