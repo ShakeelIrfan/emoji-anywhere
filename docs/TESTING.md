@@ -16,6 +16,11 @@ Measured in the plain text box test:
 - About 8 MB of RAM in use while idle, 13 seconds after the last popup.
 - No CPU use while idle.
 
+## Known issues
+
+- VS Code: when typing in the middle of a long line, the popup can appear at the right edge of the
+  window instead of under the cursor (found while recording on 2026-11-06). Inserting the emoji still works.
+
 ## Not tested yet
 
 Windows 11 Notepad, Word, Discord, Slack, WhatsApp desktop, apps running as administrator,

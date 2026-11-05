@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Emoji Anywhere: type :fire: and get 🔥 in any Windows app</title>
+  <meta name="description" content="Free, open source emoji autocomplete for Windows. Type a colon and two letters in any app, pick from a popup, done. Never goes online.">
+  <meta name="theme-color" content="#f4f5f8" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#111318" media="(prefers-color-scheme: dark)">
+  <link rel="canonical" href="https://emoji-anywhere.vercel.app/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Emoji Anywhere: type :fire: and get 🔥 in any Windows app">
+  <meta property="og:description" content="Discord style emoji shortcodes that work everywhere you type on Windows. Free, open source, never goes online.">
+  <meta property="og:url" content="https://emoji-anywhere.vercel.app/">
+  <meta property="og:image" content="https://emoji-anywhere.vercel.app/assets/img/og.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" href="/assets/img/icon-256.png" type="image/png">
+  <link rel="apple-touch-icon" href="/assets/img/icon-256.png">
+  <link rel="preload" href="/assets/fonts/Geist-Variable.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/css/site.css">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Emoji Anywhere","operatingSystem":"Windows 10, Windows 11","applicationCategory":"UtilitiesApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"license":"https://opensource.org/licenses/MIT"}
+  </script>
+</head>
+<body>
+  <svg class="sprite" width="0" height="0" aria-hidden="true">
+    <symbol id="i-download" viewBox="0 0 256 256"><path fill="currentColor" d="M224,144v64a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V144a8,8,0,0,1,16,0v56H208V144a8,8,0,0,1,16,0Zm-101.66,5.66a8,8,0,0,0,11.32,0l40-40a8,8,0,0,0-11.32-11.32L136,124.69V32a8,8,0,0,0-16,0v92.69L93.66,98.34a8,8,0,0,0-11.32,11.32Z"/></symbol>
+    <symbol id="i-github" viewBox="0 0 256 256"><path fill="currentColor" d="M208.31,75.68A59.78,59.78,0,0,0,202.93,28,8,8,0,0,0,196,24a59.75,59.75,0,0,0-48,24H124A59.75,59.75,0,0,0,76,24a8,8,0,0,0-6.93,4,59.78,59.78,0,0,0-5.38,47.68A58.14,58.14,0,0,0,56,104v8a56.06,56.06,0,0,0,48.44,55.47A39.8,39.8,0,0,0,96,192v8H72a24,24,0,0,1-24-24A40,40,0,0,0,8,136a8,8,0,0,0,0,16,24,24,0,0,1,24,24,40,40,0,0,0,40,40H96v16a8,8,0,0,0,16,0V192a24,24,0,0,1,48,0v40a8,8,0,0,0,16,0V192a39.8,39.8,0,0,0-8.44-24.53A56.06,56.06,0,0,0,216,112v-8A58.14,58.14,0,0,0,208.31,75.68ZM200,112a40,40,0,0,1-40,40H112a40,40,0,0,1-40-40v-8a41.74,41.74,0,0,1,6.9-22.48A8,8,0,0,0,80,73.83a43.81,43.81,0,0,1,.79-33.58,43.88,43.88,0,0,1,32.32,20.06A8,8,0,0,0,119.82,64h32.35a8,8,0,0,0,6.74-3.69,43.87,43.87,0,0,1,32.32-20.06A43.81,43.81,0,0,1,192,73.83a8.09,8.09,0,0,0,1,7.65A41.72,41.72,0,0,1,200,104Z"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 256 256"><path fill="currentColor" d="M208,40H48A16,16,0,0,0,32,56v56c0,52.72,25.52,84.67,46.93,102.19,23.06,18.86,46,25.26,47,25.53a8,8,0,0,0,4.2,0c1-.27,23.91-6.67,47-25.53C198.48,196.67,224,164.72,224,112V56A16,16,0,0,0,208,40Zm0,72c0,37.07-13.66,67.16-40.6,89.42A129.3,129.3,0,0,1,128,223.62a128.25,128.25,0,0,1-38.92-21.810C61.82,179.51,48,149.3,48,112l0-56,160,0ZM82.34,141.66a8,8,0,0,1,11.32-11.32L112,148.690l50.34-50.35a8,8,0,0,1,11.32,11.32l-56,56a8,8,0,0,1-11.32,0Z"/></symbol>
+    <symbol id="i-windows" viewBox="0 0 256 256"><path fill="currentColor" d="M208,136H128a8,8,0,0,0-8,8v57.45a8,8,0,0,0,6.57,7.88l80,14.54A7.610,7.610,0,0,0,208,224a8,8,0,0,0,8-8V144A8,8,0,0,0,208,136Zm-8,70.41-64-11.63V152h64ZM96,136H32a8,8,0,0,0-8,8v40a8,8,0,0,0,6.57,7.87l64,11.64a8.54,8.54,0,0,0,1.43.13,8,8,0,0,0,8-8V144A8,8,0,0,0,96,136Zm-8,50.05-48-8.73V152H88ZM213.13,33.86a8,8,0,0,0-6.56-1.73l-80,14.55A8,8,0,0,0,120,54.55V112a8,8,0,0,0,8,8h80a8,8,0,0,0,8-8V40A8,8,0,0,0,213.13,33.86ZM200,104H136V61.22l64-11.63ZM101.13,54.22a8,8,0,0,0-6.56-1.73l-64,11.64A8,8,0,0,0,24,72v40a8,8,0,0,0,8,8H96a8,8,0,0,0,8-8V60.36A8,8,0,0,0,101.13,54.22ZM88,104H40V78.68L88,70Z"/></symbol>
+  </svg>
+
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="nav">
+    <div class="wrap nav-inner">
+      <a class="brand" href="/"><img src="/assets/img/icon-256.png" alt="" width="30" height="30">Emoji Anywhere</a>
+      <nav class="nav-links" aria-label="Main">
+        <a href="#how">How it works</a>
+        <a href="#privacy">Privacy</a>
+        <a href="#faq">FAQ</a>
+        <a class="btn btn-primary" href="#download">Download for Windows</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero" aria-labelledby="title">
+      <div class="wrap hero-grid">
+        <div>
+          <h1 id="title" class="reveal">Type <span class="typed">:fire:</span> and get <span class="emo">🔥</span> in any app on Windows.</h1>
+          <p class="lede reveal">The emoji shortcodes you know from Discord, now everywhere you type. Free, open source, and it never goes online.</p>
+          <div class="ctas reveal">
+            <a class="btn btn-primary" href="#download"><svg aria-hidden="true"><use href="#i-download"/></svg>Download for Windows</a>
+            <a class="btn btn-ghost" href="https://github.com/ShakeelIrfan/emoji-anywhere"><svg aria-hidden="true"><use href="#i-github"/></svg>View the source</a>
+          </div>
+        </div>
+
+        <div class="demo reveal">
+          <label for="try">Try it here</label>
+          <p class="hint" id="try-hint">Type <span class="code">:sad</span> or <span class="code">:skull</span>, then press <kbd>Enter</kbd>.</p>
+          <div class="field">
+            <input id="try" type="text" autocomplete="off" spellcheck="false" placeholder="Type a message"
+                   role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="pop" aria-describedby="try-hint">
+            <span class="measure" id="measure" aria-hidden="true"></span>
+            <ul class="pop" id="pop" role="listbox" aria-label="Matching emojis" hidden></ul>
+          </div>
+          <p class="out" id="out" aria-live="polite"></p>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="real">
+      <div class="wrap">
+        <h2 id="real">The real app, in real windows</h2>
+        <p class="sub">No mockups. This is Emoji Anywhere running on Windows 11.</p>
+        <figure class="film">
+          <video autoplay muted loop playsinline preload="metadata" poster="/assets/video/demo-poster.png" width="1280" height="720"
+                 aria-label="Typing :lol in Edge shows a popup and inserts the laughing emoji, then typing :tada: in Chrome inserts the party popper">
+            <source src="/assets/video/demo.webm" type="video/webm">
+            <source src="/assets/video/demo.mp4" type="video/mp4">
+          </video>
+          <figcaption>Recorded in Microsoft Edge and Google Chrome.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section id="how" aria-labelledby="how-title">
+      <div class="wrap">
+        <h2 id="how-title">Three keys from thought to emoji</h2>
+        <p class="sub">It only wakes up when you type a colon after a space or at the start of a line. Everything else you type is left alone.</p>
+        <ol class="steps">
+          <li>
+            <h3>Type a colon and two letters</h3>
+            <p>Like <span class="code">:fi</span>. A small popup shows matching emojis right at your text cursor.</p>
+          </li>
+          <li>
+            <h3>Pick one</h3>
+            <p>Use <kbd>↑</kbd> <kbd>↓</kbd> then <kbd>Enter</kbd> or <kbd>Tab</kbd>. Or click it.</p>
+          </li>
+          <li>
+            <h3>Keep typing</h3>
+            <p>Your <span class="code">:code</span> turns into the emoji. Type the full code like <span class="code">:fire:</span> and it converts on its own.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section id="privacy" class="privacy" aria-labelledby="privacy-title">
+      <div class="wrap">
+        <h2 id="privacy-title">An app that sees your keyboard has to earn your trust</h2>
+        <p class="sub">So every promise comes with a way to check it yourself.</p>
+        <div class="proofs">
+          <div>
+            <h3><svg aria-hidden="true"><use href="#i-shield"/></svg>It never goes online</h3>
+            <p>There is no networking code in the app. Search the source for <code>HttpClient</code> or <code>Socket</code>, or block it in your firewall and watch it keep working.</p>
+          </div>
+          <div>
+            <h3><svg aria-hidden="true"><use href="#i-shield"/></svg>It never saves what you type</h3>
+            <p>Typed text only lives in memory while the popup is open. The only file it writes holds your settings and a count of which emojis you picked.</p>
+          </div>
+          <div>
+            <h3><svg aria-hidden="true"><use href="#i-shield"/></svg>No accounts, no tracking</h3>
+            <p>Nothing to sign up for and nothing sent anywhere. This website has no cookies and no analytics either.</p>
+          </div>
+          <div>
+            <h3><svg aria-hidden="true"><use href="#i-shield"/></svg>The download matches the code</h3>
+            <p>Every release is built by GitHub from the public code, with a signed record of which commit it came from.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="details-title">
+      <div class="wrap">
+        <h2 id="details-title">Small app, lots of care</h2>
+        <p class="sub">The details that make it feel like part of Windows.</p>
+        <div class="bento">
+          <div class="cell c-emoji">
+            <h3>Every emoji, every skin tone</h3>
+            <p>All emojis up to Emoji 17.0, with Discord, Slack and GitHub codes. Not sure of the name? Search by meaning: <span class="code">:sad</span> finds 😢 and 😭.</p>
+            <p class="strip" aria-label="Thumbs up in five skin tones">👍🏻👍🏼👍🏽👍🏾👍🏿</p>
+          </div>
+          <div class="cell c-panel">
+            <h3>Settings in the tray</h3>
+            <p>Click the tray icon to pause, pick the popup size, or tell it to ignore an app.</p>
+            <picture>
+              <source srcset="/assets/img/panel-dark.png" media="(prefers-color-scheme: dark)">
+              <img src="/assets/img/panel-light.png" alt="The Emoji Anywhere settings panel with an on and off switch, pause button, result count, popup size, start with Windows, and a list of ignored apps" width="776" height="1162" loading="lazy">
+            </picture>
+          </div>
+          <div class="cell c-learn">
+            <h3>Learns your favorites</h3>
+            <p>The emojis you use most move to the top, so you type less over time.</p>
+          </div>
+          <div class="cell c-quiet">
+            <h3>Stays out of the way</h3>
+            <p>Times like 10:30 and links never trigger it. It skips password fields and any app you add, like games.</p>
+          </div>
+          <div class="cell c-light">
+            <div>
+              <p class="big">&lt;10 ms</p>
+              <p>for the popup to show after you type.</p>
+            </div>
+            <div>
+              <p class="big">~8 MB</p>
+              <p>of memory while it waits in the tray. Both measured on Windows 11.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="faq" aria-labelledby="faq-title">
+      <div class="wrap">
+        <h2 id="faq-title">Questions</h2>
+        <div class="faq">
+          <details>
+            <summary>Windows says it protected my PC. Is it safe?</summary>
+            <p>That message shows for apps that are new and not yet signed with a paid certificate. Click "More info", then "Run anyway". The full source is public, and each download is built by GitHub from that source.</p>
+          </details>
+          <details>
+            <summary>Why does it need to see my keyboard?</summary>
+            <p>To notice when you type a colon. That is the whole trick. It ignores everything else and never stores or sends it.</p>
+          </details>
+          <details>
+            <summary>Does it work in games?</summary>
+            <p>It is meant to stay out of games. Add any game to the ignored apps in the tray panel and it will not react there.</p>
+          </details>
+          <details>
+            <summary>What about apps running as administrator?</summary>
+            <p>Windows does not let normal apps read keys typed into admin windows, so it will not work there unless you also run it as administrator.</p>
+          </details>
+          <details>
+            <summary>Is it really free?</summary>
+            <p>Yes. No ads, no premium version, no account. It is open source under the MIT license.</p>
+          </details>
+          <details>
+            <summary>How do I remove it?</summary>
+            <p>Open Windows Settings, then Apps, find Emoji Anywhere and click Uninstall. It removes the app and its settings.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <section id="download" class="get" aria-labelledby="get-title">
+      <div class="wrap">
+        <div class="get-card">
+          <img src="/assets/img/icon-256.png" alt="" width="96" height="96" loading="lazy">
+          <div>
+            <h2 id="get-title">Get Emoji Anywhere</h2>
+            <p class="meta">For Windows 10 and 11 (64-bit). Free. Installs for your user only, no admin needed, and starts with Windows.</p>
+            <a class="btn btn-primary" href="https://github.com/ShakeelIrfan/emoji-anywhere/releases/latest/download/EmojiAnywhere-Setup.exe"><svg aria-hidden="true"><use href="#i-windows"/></svg>Download for Windows</a>
+            <p class="alt">Prefer no installer? Get the <a href="https://github.com/ShakeelIrfan/emoji-anywhere/releases/latest/download/EmojiAnywhere-standalone.exe">portable version</a>. All files and checksums are on the <a href="https://github.com/ShakeelIrfan/emoji-anywhere/releases/latest">release page</a>.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap foot">
+      <span>Made by Shakeel. Open source under the MIT license.</span>
+      <nav aria-label="Footer">
+        <a href="https://github.com/ShakeelIrfan/emoji-anywhere">Source code</a>
+        <a href="/privacy">Privacy</a>
+        <a href="https://github.com/ShakeelIrfan/emoji-anywhere/issues">Report a problem</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script src="/assets/js/emoji-data.js" defer></script>
+  <script src="/assets/js/demo.js" defer></script>
+</body>
+</html>
