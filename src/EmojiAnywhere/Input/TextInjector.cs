@@ -1,3 +1,4 @@
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows;
 using EmojiAnywhere.Native;
@@ -42,7 +43,14 @@ public static class TextInjector
         }
         catch { }
 
-        try { Clipboard.SetText(emoji); } catch { return; }
+        // Neither the temporary emoji nor the restored content should show up as a new entry in
+        // Windows clipboard history or cloud clipboard. This also keeps a copied password private:
+        // password managers mark them this way, and the marks could otherwise be lost on restore.
+        if (saved != null) MarkPrivate(saved);
+        var temp = new DataObject(DataFormats.UnicodeText, emoji);
+        MarkPrivate(temp);
+        try { Clipboard.SetDataObject(temp, true); } catch { return; }
+        uint ourSequence = GetClipboardSequenceNumber();
 
         var paste = new List<Win32.INPUT>();
         paste.Add(Key(Win32.VK_CONTROL, false));
@@ -56,10 +64,23 @@ public static class TextInjector
         timer.Tick += (_, _) =>
         {
             timer.Stop();
+            // If anything copied something new in the meantime, leave it alone
+            if (GetClipboardSequenceNumber() != ourSequence) return;
             try { if (saved != null) Clipboard.SetDataObject(saved, true); else Clipboard.Clear(); } catch { }
         };
         timer.Start();
     }
+
+    private static void MarkPrivate(DataObject data)
+    {
+        static MemoryStream Zero() => new(new byte[4]);
+        data.SetData("ExcludeClipboardContentFromMonitorProcessing", Zero());
+        data.SetData("CanIncludeInClipboardHistory", Zero());
+        data.SetData("CanUploadToCloudClipboard", Zero());
+    }
+
+    [DllImport("user32.dll")]
+    private static extern uint GetClipboardSequenceNumber();
 
     private static void AddKey(List<Win32.INPUT> list, int vk)
     {
