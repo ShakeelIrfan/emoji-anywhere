@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Emoji Anywhere: type :fire: and get 🔥 in any Windows app</title>
   <meta name="description" content="Free, open source emoji autocomplete for Windows. Type a colon and two letters in any app, pick from a popup, done. Never goes online.">
-  <meta name="theme-color" content="#0e0f14">
+  <meta name="theme-color" content="#fbfbfc" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0c0c0e" media="(prefers-color-scheme: dark)">
   <link rel="canonical" href="https://emoji-anywhere.vercel.app/">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Emoji Anywhere: type :fire: and get 🔥 in any Windows app">
@@ -49,7 +50,7 @@
     <section class="hero" aria-labelledby="title">
       <div class="wrap hero-grid">
         <div>
-          <h1 id="title" class="rise">Type <span class="typed grad-text">:fire:</span> and get <span class="emo">🔥</span> in any app on Windows.</h1>
+          <h1 id="title" class="rise">Type <span class="typed">:fire:</span> and get <span class="emo">🔥</span> in any app on Windows.</h1>
           <p class="lede rise d1">The emoji shortcodes you know from Discord, now everywhere you type. Free, open source, and it never goes online.</p>
           <div class="ctas rise d2">
             <a class="btn btn-primary" href="#download"><svg aria-hidden="true"><use href="#i-download"/></svg>Download for Windows</a>
@@ -57,64 +58,47 @@
           </div>
         </div>
 
-        <div class="stage rise d3">
-          <div class="tilt">
-            <span class="float f1" aria-hidden="true"><span>😂</span></span>
-            <span class="float f2" aria-hidden="true"><span>💀</span></span>
-            <span class="float f3" aria-hidden="true"><span>🔥</span></span>
-            <span class="float f4" aria-hidden="true"><span>✨</span></span>
-            <div class="demo">
-              <label for="try">Try it right here</label>
-              <p class="hint" id="try-hint">Type <span class="code">:sad</span> or <span class="code">:skull</span>, then press Enter.</p>
-              <div class="field">
-                <input id="try" type="text" autocomplete="off" spellcheck="false" placeholder="Type a message"
-                       role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="pop" aria-describedby="try-hint">
-                <span class="measure" id="measure" aria-hidden="true"></span>
-                <ul class="pop" id="pop" role="listbox" aria-label="Matching emojis" hidden></ul>
-              </div>
-              <p class="out" id="out" aria-live="polite"></p>
-            </div>
+        <div class="demo rise d3">
+          <label for="try">Try it here</label>
+          <p class="hint" id="try-hint">Type <span class="code">:sad</span> or <span class="code">:skull</span>, then press Enter.</p>
+          <div class="field">
+            <input id="try" type="text" autocomplete="off" spellcheck="false" placeholder="Type a message"
+                   role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="pop" aria-describedby="try-hint">
+            <span class="measure" id="measure" aria-hidden="true"></span>
+            <ul class="pop" id="pop" role="listbox" aria-label="Matching emojis" hidden></ul>
           </div>
+          <p class="out" id="out" aria-live="polite"></p>
         </div>
       </div>
     </section>
 
-    <div class="marquee" aria-hidden="true">
-      <div class="marquee-track">
-        <span>:fire: <b>🔥</b></span><span>:skull: <b>💀</b></span><span>:sob: <b>😭</b></span><span>:sparkles: <b>✨</b></span><span>:joy: <b>😂</b></span><span>:eyes: <b>👀</b></span><span>:pray: <b>🙏</b></span><span>:100: <b>💯</b></span><span>:rocket: <b>🚀</b></span><span>:heart: <b>❤️</b></span><span>:clown_face: <b>🤡</b></span><span>:tada: <b>🎉</b></span>
-        <span>:fire: <b>🔥</b></span><span>:skull: <b>💀</b></span><span>:sob: <b>😭</b></span><span>:sparkles: <b>✨</b></span><span>:joy: <b>😂</b></span><span>:eyes: <b>👀</b></span><span>:pray: <b>🙏</b></span><span>:100: <b>💯</b></span><span>:rocket: <b>🚀</b></span><span>:heart: <b>❤️</b></span><span>:clown_face: <b>🤡</b></span><span>:tada: <b>🎉</b></span>
-      </div>
-    </div>
-
     <section aria-labelledby="real">
       <div class="wrap">
-        <h2 id="real" class="reveal">The real app, in <span class="grad-text">real windows</span></h2>
+        <h2 id="real" class="reveal">The real app, in real windows.</h2>
         <p class="sub reveal">No mockups. This is Emoji Anywhere running on Windows 11.</p>
-        <div class="screen">
-          <figure>
-            <video muted loop playsinline preload="none" poster="/assets/video/demo-poster.png" width="1280" height="720"
-                   aria-label="Typing :lol in Edge shows a popup and inserts the laughing emoji, then typing :tada: in Chrome inserts the party popper">
-              <source src="/assets/video/demo.webm" type="video/webm">
-              <source src="/assets/video/demo.mp4" type="video/mp4">
-            </video>
-            <figcaption>Recorded in Microsoft Edge and Google Chrome.</figcaption>
-          </figure>
-        </div>
+        <figure class="film reveal">
+          <video muted loop playsinline preload="none" poster="/assets/video/demo-poster.png" width="1280" height="720"
+                 aria-label="Typing :lol in Edge shows a popup and inserts the laughing emoji, then typing :tada: in Chrome inserts the party popper">
+            <source src="/assets/video/demo.webm" type="video/webm">
+            <source src="/assets/video/demo.mp4" type="video/mp4">
+          </video>
+          <figcaption>Recorded in Microsoft Edge and Google Chrome.</figcaption>
+        </figure>
       </div>
     </section>
 
     <section id="how" aria-labelledby="how-title">
       <div class="wrap">
-        <h2 id="how-title" class="reveal">Three keys from thought to emoji</h2>
+        <h2 id="how-title" class="reveal">Three keys. That's it.</h2>
         <p class="sub reveal">It only wakes up when you type a colon after a space or at the start of a line. Everything else you type is left alone.</p>
         <ol class="steps">
           <li class="reveal">
-            <div class="keys" aria-hidden="true"><span class="cap hot">:</span><span class="cap">f</span><span class="cap">i</span></div>
+            <div class="keys" aria-hidden="true"><span class="cap">:</span><span class="cap">f</span><span class="cap">i</span></div>
             <h3><span>1</span>Type a colon and two letters</h3>
             <p>A small popup shows matching emojis right at your text cursor.</p>
           </li>
           <li class="reveal">
-            <div class="keys" aria-hidden="true"><span class="cap">↓</span><span class="cap hot">Enter</span></div>
+            <div class="keys" aria-hidden="true"><span class="cap">↓</span><span class="cap word">Enter</span></div>
             <h3><span>2</span>Pick one</h3>
             <p>Arrow keys, then <span class="code">Enter</span> or <span class="code">Tab</span>. Or just click it.</p>
           </li>
@@ -127,25 +111,25 @@
       </div>
     </section>
 
-    <section id="privacy" class="privacy" aria-labelledby="privacy-title">
+    <section id="privacy" aria-labelledby="privacy-title">
       <div class="wrap">
-        <h2 id="privacy-title" class="reveal">Zero bytes leave <span class="grad-text">your PC.</span></h2>
-        <p class="sub reveal">An app that sees your keyboard has to earn your trust. So every promise comes with a way to check it yourself.</p>
-        <div class="proofs">
-          <div class="proof reveal">
-            <h3><svg aria-hidden="true"><use href="#i-shield"/></svg>It never goes online</h3>
+        <h2 id="privacy-title" class="reveal">Nothing you type leaves your PC.</h2>
+        <p class="sub reveal">An app that sees your keyboard has to earn your trust. So every promise comes with a way to check it.</p>
+        <div class="proofs reveal">
+          <div class="proof">
+            <h3>It never goes online</h3>
             <p>There is no networking code in the app. Search the source for <code>HttpClient</code> or <code>Socket</code>, or block it in your firewall and watch it keep working.</p>
           </div>
-          <div class="proof reveal">
-            <h3><svg aria-hidden="true"><use href="#i-shield"/></svg>It never saves what you type</h3>
+          <div class="proof">
+            <h3>It never saves what you type</h3>
             <p>Typed text only lives in memory while the popup is open. The only file it writes holds your settings and a count of which emojis you picked.</p>
           </div>
-          <div class="proof reveal">
-            <h3><svg aria-hidden="true"><use href="#i-shield"/></svg>No accounts, no tracking</h3>
+          <div class="proof">
+            <h3>No accounts, no tracking</h3>
             <p>Nothing to sign up for and nothing sent anywhere. This website has no cookies and no analytics either.</p>
           </div>
-          <div class="proof reveal">
-            <h3><svg aria-hidden="true"><use href="#i-shield"/></svg>The download matches the code</h3>
+          <div class="proof">
+            <h3>The download matches the code</h3>
             <p>Every release is built by GitHub from the public code, with a signed record of which commit it came from.</p>
           </div>
         </div>
@@ -154,40 +138,32 @@
 
     <section aria-labelledby="details-title">
       <div class="wrap">
-        <h2 id="details-title" class="reveal">Small app, lots of care</h2>
+        <h2 id="details-title" class="reveal">Small app. Lots of care.</h2>
         <p class="sub reveal">The details that make it feel like part of Windows.</p>
-        <div class="bento">
-          <div class="cell c-emoji reveal">
-            <h3>Every emoji, every skin tone</h3>
-            <p>All emojis up to Emoji 17.0, with Discord, Slack and GitHub codes. Not sure of the name? Search by meaning: <span class="code">:sad</span> finds 😢 and 😭.</p>
-            <p class="strip" aria-label="Thumbs up in five skin tones">👍🏻👍🏼👍🏽👍🏾👍🏿</p>
-          </div>
-          <div class="cell c-panel reveal">
-            <h3>Settings in the tray</h3>
-            <p>Click the tray icon to pause, pick the popup size, or tell it to ignore an app.</p>
-            <img src="/assets/img/panel-dark.png" alt="The Emoji Anywhere settings panel with an on and off switch, pause button, result count, popup size, start with Windows, and a list of ignored apps" width="776" height="1162" loading="lazy">
-          </div>
-          <div class="cell c-learn reveal">
-            <span class="big-emoji" aria-hidden="true">🧠</span>
-            <h3>Learns your favorites</h3>
-            <p>The emojis you use most move to the top, so you type less over time.</p>
-          </div>
-          <div class="cell c-quiet reveal">
-            <span class="big-emoji" aria-hidden="true">🤫</span>
-            <h3>Stays out of the way</h3>
-            <p>Times like 10:30 and links never trigger it. It skips password fields and any app you add, like games.</p>
-          </div>
-          <div class="cell c-light reveal">
-            <div>
-              <p class="big grad-text">&lt;10 ms</p>
-              <p>for the popup to show after you type.</p>
-            </div>
-            <div>
-              <p class="big grad-text">~8 MB</p>
-              <p>of memory while it waits in the tray. Both measured on Windows 11.</p>
-            </div>
-          </div>
+        <div class="features">
+          <div class="feature reveal"><span class="glyph" aria-hidden="true">👍🏽</span><div><h3>Every emoji, every skin tone</h3><p>All emojis up to Emoji 17.0, with Discord, Slack and GitHub codes like <span class="code">:thumbsup_tone3:</span>.</p></div></div>
+          <div class="feature reveal"><span class="glyph" aria-hidden="true">🔎</span><div><h3>Search by meaning</h3><p>Not sure of the name? <span class="code">:sad</span> finds 😢 and 😭.</p></div></div>
+          <div class="feature reveal"><span class="glyph" aria-hidden="true">⭐</span><div><h3>Learns your favorites</h3><p>The emojis you use most move to the top, so you type less over time.</p></div></div>
+          <div class="feature reveal"><span class="glyph" aria-hidden="true">🤫</span><div><h3>Stays out of the way</h3><p>Times like 10:30 and links never trigger it. It skips password fields and any app you tell it to ignore.</p></div></div>
         </div>
+        <div class="stats reveal">
+          <div class="stat"><p class="num">&lt;10 ms</p><p>for the popup to show after you type.</p></div>
+          <div class="stat"><p class="num">~8 MB</p><p>of memory while it waits in the tray.</p></div>
+          <div class="stat"><p class="num">3,998</p><p>emojis, skin tones included.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="panel-title">
+      <div class="wrap panel-row">
+        <div class="reveal">
+          <h2 id="panel-title">Settings live in the tray.</h2>
+          <p class="sub">Click the tray icon to pause it, pick the popup size, or tell it to ignore an app. It follows your Windows light or dark mode.</p>
+        </div>
+        <picture class="reveal">
+          <source srcset="/assets/img/panel-dark.png" media="(prefers-color-scheme: dark)">
+          <img src="/assets/img/panel-light.png" alt="The Emoji Anywhere settings panel with an on and off switch, pause button, result count, popup size, start with Windows, and a list of ignored apps" width="776" height="1162" loading="lazy">
+        </picture>
       </div>
     </section>
 
@@ -205,7 +181,7 @@
           </details>
           <details>
             <summary>Does it work in games?</summary>
-            <p>It is meant to stay out of games. Add any game to the ignored apps in the tray panel and it will not react there.</p>
+            <p>Yes, it is built to work in game chats that take normal typing. In windowed or borderless mode the popup shows over the game. In exclusive fullscreen Windows does not let any app draw on top, so type the full code like <span class="code">:skull:</span> and it converts without the popup. If a game ignores the emoji, turn on paste mode for it in the tray panel. Whether the emoji shows up depends on the game's font. We have not tested specific games yet, so tell us how it goes.</p>
           </details>
           <details>
             <summary>What about apps running as administrator?</summary>
@@ -223,17 +199,13 @@
       </div>
     </section>
 
-    <section id="download" aria-labelledby="get-title">
-      <div class="wrap">
-        <div class="get-card reveal">
-          <img src="/assets/img/icon-256.png" alt="" width="128" height="128" loading="lazy">
-          <div>
-            <h2 id="get-title">Get Emoji Anywhere</h2>
-            <p class="meta">For Windows 10 and 11 (64-bit). Free. Installs for your user only, no admin needed, and starts with Windows.</p>
-            <a class="btn btn-primary" href="https://github.com/ShakeelIrfan/emoji-anywhere/releases/latest/download/EmojiAnywhere-Setup.exe"><svg aria-hidden="true"><use href="#i-windows"/></svg>Download for Windows</a>
-            <p class="alt">Prefer no installer? Get the <a href="https://github.com/ShakeelIrfan/emoji-anywhere/releases/latest/download/EmojiAnywhere-standalone.exe">portable version</a>. All files and checksums are on the <a href="https://github.com/ShakeelIrfan/emoji-anywhere/releases/latest">release page</a>.</p>
-          </div>
-        </div>
+    <section id="download" class="get" aria-labelledby="get-title">
+      <div class="wrap reveal">
+        <img src="/assets/img/icon-256.png" alt="" width="96" height="96" loading="lazy">
+        <h2 id="get-title">Get Emoji Anywhere</h2>
+        <p class="meta">For Windows 10 and 11 (64-bit). Free. Installs for your user only, no admin needed, and starts with Windows.</p>
+        <a class="btn btn-primary" href="https://github.com/ShakeelIrfan/emoji-anywhere/releases/latest/download/EmojiAnywhere-Setup.exe"><svg aria-hidden="true"><use href="#i-windows"/></svg>Download for Windows</a>
+        <p class="alt">Prefer no installer? Get the <a href="https://github.com/ShakeelIrfan/emoji-anywhere/releases/latest/download/EmojiAnywhere-standalone.exe">portable version</a>. All files and checksums are on the <a href="https://github.com/ShakeelIrfan/emoji-anywhere/releases/latest">release page</a>.</p>
       </div>
     </section>
   </main>

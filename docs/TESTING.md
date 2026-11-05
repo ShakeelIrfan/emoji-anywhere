@@ -23,5 +23,6 @@ Measured in the plain text box test:
 
 ## Not tested yet
 
-Windows 11 Notepad, Word, Discord, Slack, WhatsApp desktop, apps running as administrator,
+Windows 11 Notepad, Word, Discord, Slack, WhatsApp desktop, games (chat in windowed, borderless
+and exclusive fullscreen), apps running as administrator,
 non US keyboard layouts, more than one monitor with different scaling.
