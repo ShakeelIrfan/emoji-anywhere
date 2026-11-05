@@ -72,6 +72,16 @@ begin
   Result := '';
 end;
 
+// After a normal uninstall, open the optional "why did you uninstall" page in the browser.
+// The app itself never goes online; this is just a web page the person can close.
+procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+var
+  ErrorCode: Integer;
+begin
+  if (CurUninstallStep = usPostUninstall) and (not UninstallSilent) then
+    ShellExec('open', 'https://emoji-anywhere.vercel.app/bye?v={#AppVersion}', '', '', SW_SHOWNORMAL, ewNoWait, ErrorCode);
+end;
+
 // If the user unticks "start with Windows", make sure the app's own setting does not turn it back on
 procedure CurStepChanged(CurStep: TSetupStep);
 var

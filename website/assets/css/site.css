@@ -223,3 +223,33 @@ footer { padding: var(--s6) 0 var(--s7); color: var(--muted); font-size: 0.92rem
 .page .big { font-size: 4rem; margin: 0 0 var(--s4); }
 
 h1, h2 { text-wrap: balance; }
+
+/* ---------- Optional surveys (uninstall page and after download) ---------- */
+.survey fieldset { border: 0; padding: 0; margin: var(--s6) 0 var(--s5); }
+.survey legend { font-weight: 600; font-size: 1.1rem; margin-bottom: var(--s3); color: var(--ink); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chips label { position: relative; cursor: pointer; }
+.chips input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.chips span {
+  display: inline-block; padding: 9px 14px; border-radius: var(--r-pill); border: 1px solid var(--line);
+  background: var(--surface); color: var(--ink); font-size: 0.95rem; transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+}
+.chips label:hover span { border-color: var(--muted); }
+.chips input:checked + span { background: var(--btn); color: var(--btn-ink); border-color: var(--btn); }
+.chips input:focus-visible + span { outline: 2px solid var(--ink); outline-offset: 2px; }
+.note-label { display: block; font-weight: 600; margin-bottom: 6px; color: var(--ink); }
+.survey textarea {
+  width: 100%; font: 400 1rem/1.5 var(--font); color: var(--ink); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 10px; padding: 12px; resize: vertical;
+}
+.survey textarea:focus { outline: 2px solid var(--ink); outline-offset: 0; border-color: transparent; }
+.survey .hint { font-size: 0.9rem; margin: 6px 0 var(--s5); }
+.survey .status { min-height: 1.5em; margin: var(--s3) 0 0; font-size: 0.95rem; }
+.survey .status.ok { color: var(--ink); }
+.trap { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+
+.heard { margin: var(--s6) auto 0; max-width: 640px; padding: var(--s5); border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); text-align: left; }
+.heard[hidden] { display: none; }
+.heard .survey fieldset { margin: 0 0 var(--s3); }
+.heard p.thanks { margin: 0; color: var(--muted); }
+@media (prefers-reduced-motion: no-preference) { .heard:not([hidden]) { animation: rise 0.4s var(--ease) both; } }

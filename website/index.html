@@ -206,6 +206,28 @@
         <p class="meta">For Windows 10 and 11 (64-bit). Free. Installs for your user only, no admin needed, and starts with Windows.</p>
         <a class="btn btn-primary" href="https://github.com/ShakeelIrfan/emoji-anywhere/releases/latest/download/EmojiAnywhere-Setup.exe"><svg aria-hidden="true"><use href="#i-windows"/></svg>Download for Windows</a>
         <p class="alt">Prefer no installer? Get the <a href="https://github.com/ShakeelIrfan/emoji-anywhere/releases/latest/download/EmojiAnywhere-standalone.exe">portable version</a>. All files and checksums are on the <a href="https://github.com/ShakeelIrfan/emoji-anywhere/releases/latest">release page</a>.</p>
+
+        <!-- Shown after a download click. Optional, one tap. -->
+        <div class="heard" id="heard" hidden>
+          <form class="survey" data-kind="heard" data-autosend novalidate>
+            <fieldset>
+              <legend>Your download is starting. Quick one: where did you hear about us?</legend>
+              <div class="chips">
+                <label><input type="radio" name="answer" value="instagram"><span>Instagram</span></label>
+                <label><input type="radio" name="answer" value="tiktok"><span>TikTok</span></label>
+                <label><input type="radio" name="answer" value="youtube"><span>YouTube</span></label>
+                <label><input type="radio" name="answer" value="reddit"><span>Reddit</span></label>
+                <label><input type="radio" name="answer" value="discord"><span>Discord</span></label>
+                <label><input type="radio" name="answer" value="friend"><span>A friend</span></label>
+                <label><input type="radio" name="answer" value="search"><span>Search</span></label>
+                <label><input type="radio" name="answer" value="github"><span>GitHub</span></label>
+                <label><input type="radio" name="answer" value="other"><span>Somewhere else</span></label>
+              </div>
+            </fieldset>
+            <input class="trap" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+            <p class="status" role="status" aria-live="polite">Optional. We only keep your answer and the date.</p>
+          </form>
+        </div>
       </div>
     </section>
   </main>
@@ -224,5 +246,6 @@
   <script src="/assets/js/emoji-data.js" defer></script>
   <script src="/assets/js/demo.js" defer></script>
   <script src="/assets/js/fx.js" defer></script>
+  <script src="/assets/js/feedback.js" defer></script>
 </body>
 </html>

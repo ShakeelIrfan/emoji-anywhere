@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sorry to see you go | Emoji Anywhere</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="stylesheet" href="/assets/css/site.css">
+</head>
+<body>
+  <main id="main" class="wrap page">
+    <p class="big" aria-hidden="true">👋</p>
+    <h1>Emoji Anywhere is uninstalled</h1>
+    <p>It's fully removed, settings included. If you have ten seconds, telling us why helps make it better. This is optional, and you can just close the page.</p>
+
+    <form class="survey" data-kind="uninstall" novalidate>
+      <fieldset>
+        <legend>Why did you uninstall it?</legend>
+        <div class="chips">
+          <label><input type="radio" name="answer" value="got_in_the_way"><span>It got in the way while typing</span></label>
+          <label><input type="radio" name="answer" value="app_not_working"><span>It didn't work in an app I use</span></label>
+          <label><input type="radio" name="answer" value="did_not_use"><span>I didn't use it much</span></label>
+          <label><input type="radio" name="answer" value="slow"><span>It felt slow</span></label>
+          <label><input type="radio" name="answer" value="found_other"><span>I found something else</span></label>
+          <label><input type="radio" name="answer" value="privacy"><span>Privacy worries</span></label>
+          <label><input type="radio" name="answer" value="reinstalling"><span>I'm just reinstalling</span></label>
+          <label><input type="radio" name="answer" value="other"><span>Something else</span></label>
+        </div>
+      </fieldset>
+      <label class="note-label" for="note">Anything else? (optional)</label>
+      <textarea id="note" name="note" maxlength="500" rows="3" placeholder="Which app didn't it work in? What would bring you back?"></textarea>
+      <p class="hint">Please don't include personal details. We only keep your answer, the app version and the date.</p>
+      <input class="trap" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <button class="btn btn-primary" type="submit">Send feedback</button>
+      <p class="status" role="status" aria-live="polite"></p>
+    </form>
+  </main>
+  <footer>
+    <div class="wrap foot">
+      <span>Made by Shakeel.</span>
+      <nav aria-label="Footer"><a href="/">Home</a><a href="/privacy">Privacy</a></nav>
+    </div>
+  </footer>
+  <script src="/assets/js/feedback.js" defer></script>
+</body>
+</html>
