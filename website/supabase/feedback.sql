@@ -14,11 +14,12 @@ create table if not exists public.emoji_feedback (
 -- and only you can read it from the Supabase dashboard.
 alter table public.emoji_feedback enable row level security;
 
--- Hard backstop against floods: at most 60 answers per minute in total, whatever the server does
+-- Last resort backstop against floods, far above real traffic. Hitting it only pauses optional survey
+-- answers for a minute; the site and downloads are unaffected. Per-address limits live in the API.
 create or replace function public.emoji_feedback_rate_cap() returns trigger
 language plpgsql security definer set search_path = public as $$
 begin
-  if (select count(*) from public.emoji_feedback where created_at > now() - interval '1 minute') >= 60 then
+  if (select count(*) from public.emoji_feedback where created_at > now() - interval '1 minute') >= 600 then
     raise exception 'feedback rate cap reached' using errcode = 'P0001';
   end if;
   return new;
