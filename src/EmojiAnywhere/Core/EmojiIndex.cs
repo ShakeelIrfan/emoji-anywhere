@@ -4,7 +4,7 @@ using System.Text.Json;
 
 namespace EmojiAnywhere.Core;
 
-public sealed record Emoji(string Hex, string Unicode, string Label, string[] Shortcodes, string[] Tags, int Order)
+public sealed record EmojiEntry(string Hex, string Unicode, string Label, string[] Shortcodes, string[] Tags, int Order)
 {
     // Prefer a word over symbols, so 👍 shows as :thumbsup: and not :+1:
     public string PrimaryShortcode =>
@@ -14,8 +14,8 @@ public sealed record Emoji(string Hex, string Unicode, string Label, string[] Sh
 // All emoji data is built into the app. Nothing is downloaded.
 public sealed class EmojiIndex
 {
-    private readonly List<Emoji> _all = new();
-    private readonly Dictionary<string, Emoji> _byShortcode = new(StringComparer.OrdinalIgnoreCase);
+    private readonly List<EmojiEntry> _all = new();
+    private readonly Dictionary<string, EmojiEntry> _byShortcode = new(StringComparer.OrdinalIgnoreCase);
     private readonly UsageStore _usage;
 
     public EmojiIndex(UsageStore usage)
@@ -26,13 +26,13 @@ public sealed class EmojiIndex
 
     public int Count => _all.Count;
 
-    public Emoji? FindExact(string shortcode) =>
+    public EmojiEntry? FindExact(string shortcode) =>
         _byShortcode.TryGetValue(shortcode, out var e) ? e : null;
 
-    public List<Emoji> Search(string query, int max)
+    public List<EmojiEntry> Search(string query, int max)
     {
         query = query.ToLowerInvariant();
-        var scored = new List<(Emoji e, double score)>();
+        var scored = new List<(EmojiEntry e, double score)>();
         // Skin tones only show up when you ask for them, so :thumb is not five thumbs in a row
         bool wantSkins = query.Contains("tone");
 
@@ -66,7 +66,7 @@ public sealed class EmojiIndex
         "⚡", "☕", "⭐", "🤨", "🤘", "🤝", "😓", "😟", "😣", "🧐", "😠", "🤠", "😛", "😑", "🫡", "🫠", "😮‍💨"
     };
 
-    private static double MatchScore(Emoji e, string q)
+    private static double MatchScore(EmojiEntry e, string q)
     {
         double best = 0;
         foreach (var sc in e.Shortcodes)
@@ -119,7 +119,7 @@ public sealed class EmojiIndex
                 if (label.StartsWith("regional indicator "))
                 {
                     string letter = label[^1..].ToLowerInvariant();
-                    Add(new Emoji(hex, uni, label, new[] { "regional_indicator_" + letter }, new[] { "letter" }, 100000 + letter[0]), skin: false);
+                    Add(new EmojiEntry(hex, uni, label, new[] { "regional_indicator_" + letter }, new[] { "letter" }, 100000 + letter[0]), skin: false);
                 }
                 continue;
             }
@@ -130,7 +130,7 @@ public sealed class EmojiIndex
             var codes = shortcodes.TryGetValue(hex, out var c) ? c.ToArray() : Array.Empty<string>();
             if (codes.Length == 0) codes = new[] { Slug(label) }; // every emoji gets at least one shortcode
 
-            var emoji = new Emoji(hex, uni, label, codes, tags, orderEl.GetInt32());
+            var emoji = new EmojiEntry(hex, uni, label, codes, tags, orderEl.GetInt32());
             Add(emoji, skin: false);
 
             // Skin tone versions, named like Discord: thumbsup_tone2
@@ -141,7 +141,7 @@ public sealed class EmojiIndex
                     string shex = s.GetProperty("hexcode").GetString()!;
                     string tones = string.Concat(shex.Split('-').Select(ToneNumber).Where(n => n > 0).Select(n => "_tone" + n));
                     var scodes = codes.Select(x => x + tones).ToArray();
-                    Add(new Emoji(shex, s.GetProperty("unicode").GetString()!, s.GetProperty("label").GetString()!,
+                    Add(new EmojiEntry(shex, s.GetProperty("unicode").GetString()!, s.GetProperty("label").GetString()!,
                         scodes, tags, s.TryGetProperty("order", out var so) ? so.GetInt32() : emoji.Order), skin: true);
                 }
             }
@@ -150,7 +150,7 @@ public sealed class EmojiIndex
 
     private readonly HashSet<string> _skinHex = new();
 
-    private void Add(Emoji e, bool skin)
+    private void Add(EmojiEntry e, bool skin)
     {
         _all.Add(e);
         if (skin) _skinHex.Add(e.Hex);

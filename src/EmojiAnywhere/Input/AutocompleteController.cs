@@ -19,7 +19,7 @@ public sealed class AutocompleteController
     private bool _collecting;             // we saw a ":" at a boundary
     private string _query = "";
     private IntPtr _window;               // window the ":" was typed in
-    private List<Emoji> _results = new();
+    private List<EmojiEntry> _results = new();
 
     public bool Paused { get; set; }
 
@@ -79,7 +79,7 @@ public sealed class AutocompleteController
                 _ui.BeginInvoke(Refresh);
                 return false;
             }
-            if (c == ':' && _query.Length > 0 && _index.FindExact(_query) is Emoji exact)
+            if (c == ':' && _query.Length > 0 && _index.FindExact(_query) is EmojiEntry exact)
             {
                 Commit(exact, typedClosingColon: true);
                 return true; // swallow the closing ":"
@@ -117,7 +117,7 @@ public sealed class AutocompleteController
         _popup.Show(_results, CaretLocator.Find(_window), _settings.PopupScale);
     }
 
-    private void Commit(Emoji emoji, bool typedClosingColon)
+    private void Commit(EmojiEntry emoji, bool typedClosingColon)
     {
         // Delete ":" plus the query. The closing ":" was swallowed so it never reached the app.
         int toDelete = 1 + _query.Length;

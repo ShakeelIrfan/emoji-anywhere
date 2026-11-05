@@ -1,0 +1,67 @@
+# Builds the app on every push, and publishes a release when you push a tag like v0.1.0.
+# Release files are built here from the public code, with a signed record (attestation)
+# proving which commit they came from. Anyone can check it with:
+#   gh attestation verify EmojiAnywhere.exe --repo ShakeelIrfan/emoji-anywhere
+
+name: build
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    permissions:
+      contents: write        # create the release
+      id-token: write        # sign the attestation
+      attestations: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Build
+        run: dotnet build src/EmojiAnywhere -c Release
+
+      - name: Publish small exe (needs the free .NET 8 Desktop Runtime)
+        run: dotnet publish src/EmojiAnywhere -c Release -r win-x64 --self-contained false -p:PublishSingleFile=true -o out/small
+
+      - name: Publish standalone exe (no install needed)
+        run: dotnet publish src/EmojiAnywhere -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o out/standalone
+
+      - name: Collect files
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory dist | Out-Null
+          Copy-Item out/small/EmojiAnywhere.exe dist/EmojiAnywhere.exe
+          Copy-Item out/standalone/EmojiAnywhere.exe dist/EmojiAnywhere-standalone.exe
+          Get-ChildItem dist/*.exe | ForEach-Object {
+            "$((Get-FileHash $_ -Algorithm SHA256).Hash.ToLower())  $($_.Name)"
+          } | Set-Content dist/SHA256SUMS.txt
+          Get-Content dist/SHA256SUMS.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: EmojiAnywhere
+          path: dist/
+
+      - name: Attest build provenance
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: dist/*.exe
+
+      - name: Create release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: pwsh
+        run: gh release create $env:GITHUB_REF_NAME dist/* --title "Emoji Anywhere $env:GITHUB_REF_NAME" --generate-notes --draft

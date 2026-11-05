@@ -66,9 +66,14 @@ An app that sees your keyboard has to earn your trust. Here's how this one does 
 | No internet, ever | The code has no networking at all. Search the repo for `HttpClient`, `WebRequest` or `Socket` and you'll find nothing. Or block it in your firewall and watch it keep working. |
 | Never saves what you type | Typed text only lives in memory while the popup is open, then it's gone. The only file it writes is your settings and a count of which emojis you picked. |
 | No accounts, no tracking | There's nothing to sign up for and nothing to send data to. |
-| The download matches the code | Release builds are made by GitHub Actions straight from this public code. |
+| The download matches the code | Release builds are made by GitHub Actions straight from this public code, with a signed record of which commit they came from. Check any download with `gh attestation verify EmojiAnywhere.exe --repo ShakeelIrfan/emoji-anywhere`. |
 
 Everything is open source under the MIT license. Read every line.
+
+## Which download?
+
+- **EmojiAnywhere.exe** (about 3 MB) needs the free [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0). Windows offers to install it the first time if you don't have it.
+- **EmojiAnywhere-standalone.exe** is bigger but runs with nothing else installed.
 
 ## Tray menu
 

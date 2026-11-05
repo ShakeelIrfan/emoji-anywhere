@@ -10,6 +10,7 @@
     <AssemblyName>EmojiAnywhere</AssemblyName>
     <RootNamespace>EmojiAnywhere</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
     <Version>0.1.0</Version>
     <Product>Emoji Anywhere</Product>
     <Authors>Shakeel Irfan</Authors>
@@ -24,6 +25,10 @@
   <!-- Emoji data from emojibase (MIT), built into the exe -->
   <ItemGroup>
     <EmbeddedResource Include="Data\*.json" />
+    <EmbeddedResource Include="Assets\app.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Emoji.Wpf" Version="0.3.4" />
   </ItemGroup>
 
 </Project>

@@ -61,17 +61,22 @@ public sealed class SuggestionPopup : Window
         set { _selected = value; Highlight(); }
     }
 
-    public void Show(List<Emoji> items, CaretLocator.Spot at, double scale)
+    public void Show(List<EmojiEntry> items, CaretLocator.Spot at, double scale)
     {
-        ApplyTheme();
+        Fill(items, scale);
+        if (!IsVisible) base.Show();
+        UpdateLayout();
+        Place(at);
+    }
+
+    // Builds the rows without showing the window. Also used to render previews for the README.
+    public void Fill(List<EmojiEntry> items, double scale, bool? light = null)
+    {
+        ApplyTheme(light);
         _list.Children.Clear();
         for (int i = 0; i < items.Count; i++) _list.Children.Add(Row(items[i], i, scale));
         _selected = 0;
         Highlight();
-
-        if (!IsVisible) base.Show();
-        UpdateLayout();
-        Place(at);
     }
 
     public new void Hide()
@@ -79,7 +84,7 @@ public sealed class SuggestionPopup : Window
         if (IsVisible) base.Hide();
     }
 
-    private UIElement Row(Emoji e, int index, double scale)
+    private UIElement Row(EmojiEntry e, int index, double scale)
     {
         var row = new Border
         {
@@ -91,8 +96,8 @@ public sealed class SuggestionPopup : Window
                 Orientation = Orientation.Horizontal,
                 Children =
                 {
-                    // TODO at build time: WPF draws emoji in black and white. Swap in Emoji.Wpf for color.
-                    new TextBlock { Text = e.Unicode, FontFamily = new FontFamily("Segoe UI Emoji"), FontSize = 18 * scale, Width = 28 * scale, VerticalAlignment = VerticalAlignment.Center },
+                    // Emoji.Wpf draws color emoji. Plain WPF only draws them in black and white.
+                    new global::Emoji.Wpf.TextBlock { Text = e.Unicode, FontSize = 18 * scale, Width = 28 * scale, VerticalAlignment = VerticalAlignment.Center },
                     new TextBlock { Text = ":" + e.PrimaryShortcode + ":", FontFamily = new FontFamily("Segoe UI Variable Text, Segoe UI"), FontSize = 13 * scale, VerticalAlignment = VerticalAlignment.Center }
                 }
             }
@@ -109,7 +114,7 @@ public sealed class SuggestionPopup : Window
 
     private Brush _accentBg = Brushes.LightBlue;
 
-    private void ApplyTheme()
+    private void ApplyTheme(bool? forceLight = null)
     {
         bool light = true;
         try
@@ -118,6 +123,7 @@ public sealed class SuggestionPopup : Window
             light = (key?.GetValue("AppsUseLightTheme") as int? ?? 1) != 0;
         }
         catch { }
+        if (forceLight is bool f) light = f;
 
         _card.Background = new SolidColorBrush(light ? Color.FromRgb(0xF9, 0xF9, 0xF9) : Color.FromRgb(0x2B, 0x2B, 0x2B));
         _card.BorderBrush = new SolidColorBrush(light ? Color.FromArgb(0x1F, 0, 0, 0) : Color.FromArgb(0x33, 0xFF, 0xFF, 0xFF));
