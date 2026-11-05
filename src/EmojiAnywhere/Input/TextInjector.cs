@@ -25,8 +25,22 @@ public static class TextInjector
 
     private static void PasteAndRestore(string emoji)
     {
-        IDataObject? saved = null;
-        try { saved = Clipboard.GetDataObject(); } catch { }
+        // Take a real copy of what is on the clipboard. GetDataObject alone is only a live
+        // view of the clipboard, so it would show the emoji by the time we restore it.
+        DataObject? saved = null;
+        try
+        {
+            var live = Clipboard.GetDataObject();
+            if (live != null)
+            {
+                saved = new DataObject();
+                foreach (string format in live.GetFormats(false))
+                {
+                    try { var data = live.GetData(format, false); if (data != null) saved.SetData(format, data); } catch { }
+                }
+            }
+        }
+        catch { }
 
         try { Clipboard.SetText(emoji); } catch { return; }
 
@@ -62,7 +76,7 @@ public static class TextInjector
                 type = Win32.INPUT_KEYBOARD,
                 u = new Win32.InputUnion
                 {
-                    ki = new Win32.KEYBDINPUT { wScan = ch, dwFlags = Win32.KEYEVENTF_UNICODE | (up ? Win32.KEYEVENTF_KEYUP : 0) }
+                    ki = new Win32.KEYBDINPUT { wScan = ch, dwFlags = Win32.KEYEVENTF_UNICODE | (up ? Win32.KEYEVENTF_KEYUP : 0), dwExtraInfo = Win32.OurMarker }
                 }
             });
         }
@@ -71,7 +85,7 @@ public static class TextInjector
     private static Win32.INPUT Key(int vk, bool up) => new()
     {
         type = Win32.INPUT_KEYBOARD,
-        u = new Win32.InputUnion { ki = new Win32.KEYBDINPUT { wVk = (ushort)vk, dwFlags = up ? Win32.KEYEVENTF_KEYUP : 0 } }
+        u = new Win32.InputUnion { ki = new Win32.KEYBDINPUT { wVk = (ushort)vk, dwFlags = up ? Win32.KEYEVENTF_KEYUP : 0, dwExtraInfo = Win32.OurMarker } }
     };
 
     private static void Send(List<Win32.INPUT> inputs)

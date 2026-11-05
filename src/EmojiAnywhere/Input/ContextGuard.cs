@@ -20,18 +20,23 @@ public static class ContextGuard
         return IsPasswordField();
     }
 
+    private static readonly object _cacheLock = new();
+
     public static string ProcessName(IntPtr hwnd)
     {
-        if (hwnd == _lastHwnd) return _lastName;
-        try
+        lock (_cacheLock)
         {
-            Win32.GetWindowThreadProcessId(hwnd, out uint pid);
-            using var p = Process.GetProcessById((int)pid);
-            _lastName = p.ProcessName;
+            if (hwnd == _lastHwnd) return _lastName;
+            try
+            {
+                Win32.GetWindowThreadProcessId(hwnd, out uint pid);
+                using var p = Process.GetProcessById((int)pid);
+                _lastName = p.ProcessName;
+            }
+            catch { _lastName = ""; }
+            _lastHwnd = hwnd;
+            return _lastName;
         }
-        catch { _lastName = ""; }
-        _lastHwnd = hwnd;
-        return _lastName;
     }
 
     private static bool IsPasswordField()

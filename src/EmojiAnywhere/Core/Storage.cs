@@ -11,7 +11,11 @@ internal static class AppPaths
     {
         get
         {
-            string dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "EmojiAnywhere");
+            // EMOJIANYWHERE_DATA lets you keep settings somewhere else, like a USB stick or a test folder
+            string? custom = Environment.GetEnvironmentVariable("EMOJIANYWHERE_DATA");
+            string dir = !string.IsNullOrWhiteSpace(custom)
+                ? custom
+                : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "EmojiAnywhere");
             Directory.CreateDirectory(dir);
             return dir;
         }
@@ -79,8 +83,12 @@ public sealed class UsageStore
         if (!_entries.TryGetValue(hex, out var e)) _entries[hex] = e = new Entry();
         e.Count++;
         e.LastUsed = DateTime.UtcNow;
-        AppPaths.Save("usage.json", _entries);
+        // Copy now, write to disk in the background so the keyboard never waits on the disk
+        var snapshot = _entries.ToDictionary(x => x.Key, x => new Entry { Count = x.Value.Count, LastUsed = x.Value.LastUsed });
+        Task.Run(() => { lock (_saveLock) AppPaths.Save("usage.json", snapshot); });
     }
+
+    private static readonly object _saveLock = new();
 
     public bool HasUsed(string hex) => _entries.ContainsKey(hex);
 

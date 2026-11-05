@@ -1,14 +1,23 @@
 # Third party notices
 
-## Emojibase data
+All of these are used under the MIT license. The full MIT license text is included once at the
+bottom of this file and applies to each of them with its own copyright line.
 
-The emoji list, names, tags and shortcodes in `src/EmojiAnywhere/Data/` come from
-[emojibase-data](https://github.com/milesj/emojibase) version 18.0.0, used under the MIT license.
+| Component | Used for | Copyright |
+|---|---|---|
+| [emojibase-data](https://github.com/milesj/emojibase) 18.0.0 | Emoji list, names, tags, shortcodes | Copyright (c) 2017-present Miles Johnson |
+| [Vortice.Windows](https://github.com/amerkoleci/Vortice.Windows) 3.8.3 (Direct2D1, DirectX, DXGI) | Drawing color emoji with Windows' own text engine | Copyright (c) Amer Koleci and Contributors |
+| [Vortice.Mathematics](https://github.com/amerkoleci/Vortice.Mathematics) 2.1.0 | Used by Vortice | Copyright (c) Amer Koleci and Contributors |
+| [SharpGen.Runtime](https://github.com/SharpGenTools/SharpGenTools) 2.4.2-beta | Used by Vortice | (c) 2010-2017 Alexandre Mutel, 2017-2023 Jeremy Koritzinsky, 2023-2024 Amer Koleci |
+
+Emoji images are drawn at runtime from the Segoe UI Emoji font that ships with Windows. No emoji images are bundled.
+
+## MIT license text
 
 ```
 The MIT License (MIT)
 
-Copyright (c) 2017-present Miles Johnson
+Copyright (c) <year> <copyright holders>  (see the table above for each component)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

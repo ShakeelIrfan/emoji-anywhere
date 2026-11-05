@@ -22,6 +22,7 @@ public sealed class SuggestionPopup : Window
     private IntPtr _hwnd;
 
     public event Action<int>? ItemClicked;
+    public IntPtr Hwnd => _hwnd; // safe to read from any thread
     public bool IsOpen => IsVisible;
 
     public SuggestionPopup()
@@ -81,7 +82,9 @@ public sealed class SuggestionPopup : Window
 
     public new void Hide()
     {
-        if (IsVisible) base.Hide();
+        if (!IsVisible) return;
+        base.Hide();
+        MemoryTrim.Schedule(TimeSpan.FromSeconds(5));
     }
 
     private UIElement Row(EmojiEntry e, int index, double scale)
@@ -96,14 +99,26 @@ public sealed class SuggestionPopup : Window
                 Orientation = Orientation.Horizontal,
                 Children =
                 {
-                    // Emoji.Wpf draws color emoji. Plain WPF only draws them in black and white.
-                    new global::Emoji.Wpf.TextBlock { Text = e.Unicode, FontSize = 18 * scale, Width = 28 * scale, VerticalAlignment = VerticalAlignment.Center },
+                    EmojiIcon(e.Unicode, scale),
                     new TextBlock { Text = ":" + e.PrimaryShortcode + ":", FontFamily = new FontFamily("Segoe UI Variable Text, Segoe UI"), FontSize = 13 * scale, VerticalAlignment = VerticalAlignment.Center }
                 }
             }
         };
         row.MouseLeftButtonDown += (_, _) => ItemClicked?.Invoke(index);
         return row;
+    }
+
+    // Color emoji drawn by Windows. Falls back to plain text if drawing ever fails.
+    private static FrameworkElement EmojiIcon(string emoji, double scale)
+    {
+        double size = 22 * scale;
+        var source = EmojiRenderer.Get(emoji);
+        if (source == null)
+            return new TextBlock { Text = emoji, FontFamily = new FontFamily("Segoe UI Emoji"), FontSize = 18 * scale, Width = 28 * scale, VerticalAlignment = VerticalAlignment.Center };
+
+        var img = new Image { Source = source, Width = size, Height = size, Margin = new Thickness(0, 0, 6 * scale, 0), VerticalAlignment = VerticalAlignment.Center };
+        RenderOptions.SetBitmapScalingMode(img, BitmapScalingMode.HighQuality);
+        return img;
     }
 
     private void Highlight()

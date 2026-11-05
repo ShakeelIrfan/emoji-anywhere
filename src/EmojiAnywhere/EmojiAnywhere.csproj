@@ -11,6 +11,9 @@
     <RootNamespace>EmojiAnywhere</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
+    <!-- Small tray app: a lean garbage collector setup keeps memory low -->
+    <ConcurrentGarbageCollection>false</ConcurrentGarbageCollection>
+    <ServerGarbageCollection>false</ServerGarbageCollection>
     <Version>0.1.0</Version>
     <Product>Emoji Anywhere</Product>
     <Authors>Shakeel Irfan</Authors>
@@ -28,7 +31,7 @@
     <EmbeddedResource Include="Assets\app.ico" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Emoji.Wpf" Version="0.3.4" />
+    <PackageReference Include="Vortice.Direct2D1" Version="3.8.3" />
   </ItemGroup>
 
 </Project>

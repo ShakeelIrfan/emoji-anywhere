@@ -8,6 +8,8 @@ internal static class Win32
     public const int WH_KEYBOARD_LL = 13;
     public const int WM_KEYDOWN = 0x0100, WM_SYSKEYDOWN = 0x0104;
     public const uint LLKHF_INJECTED = 0x10;
+    // Stamped on keys we send ourselves, so our own typing never loops back into the hook
+    public static readonly IntPtr OurMarker = (IntPtr)0x45414E59;
 
     public const int GWL_EXSTYLE = -20;
     public const int WS_EX_NOACTIVATE = 0x08000000, WS_EX_TOOLWINDOW = 0x80, WS_EX_TOPMOST = 0x8;
