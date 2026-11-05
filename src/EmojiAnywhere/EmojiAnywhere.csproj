@@ -9,9 +9,21 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>EmojiAnywhere</AssemblyName>
     <RootNamespace>EmojiAnywhere</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
     <Version>0.1.0</Version>
     <Product>Emoji Anywhere</Product>
     <Authors>Shakeel Irfan</Authors>
   </PropertyGroup>
+
+  <!-- WinForms is only used for the tray icon. Keep its names out of WPF files. -->
+  <ItemGroup>
+    <Using Remove="System.Windows.Forms" />
+    <Using Remove="System.Drawing" />
+  </ItemGroup>
+
+  <!-- Emoji data from emojibase (MIT), built into the exe -->
+  <ItemGroup>
+    <EmbeddedResource Include="Data\*.json" />
+  </ItemGroup>
 
 </Project>

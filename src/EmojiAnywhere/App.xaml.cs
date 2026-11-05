@@ -1,13 +1,41 @@
+using System.Threading;
 using System.Windows;
+using EmojiAnywhere.Core;
+using EmojiAnywhere.Input;
+using EmojiAnywhere.UI;
 
 namespace EmojiAnywhere;
 
 // Entry point. Lives in the tray, no main window.
-// The keyboard hook, popup and tray menu get wired up here as they are built.
 public partial class App : Application
 {
+    private Mutex? _single;
+    private KeyboardHook? _hook;
+    private TrayHost? _tray;
+
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+
+        // Only one copy at a time
+        _single = new Mutex(true, "EmojiAnywhere.SingleInstance", out bool first);
+        if (!first) { Shutdown(); return; }
+
+        var settings = Settings.Load();
+        var usage = new UsageStore();
+        var index = new EmojiIndex(usage);
+        var popup = new SuggestionPopup();
+        var controller = new AutocompleteController(index, usage, settings, popup);
+
+        _hook = new KeyboardHook(controller.OnKey);
+        _tray = new TrayHost(settings, controller, Shutdown);
+    }
+
+    protected override void OnExit(ExitEventArgs e)
+    {
+        _hook?.Dispose();
+        _tray?.Dispose();
+        _single?.Dispose();
+        base.OnExit(e);
     }
 }
