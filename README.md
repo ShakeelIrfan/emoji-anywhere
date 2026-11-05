@@ -27,13 +27,13 @@ Free, open source, and it never touches the internet.
 
 On Discord you type `:skull:` and it just works. Then you switch to WhatsApp, Word or your code editor, and you're back to opening a menu and scrolling for the right face.
 
-Emoji Anywhere fixes that. Same shortcodes, every app, no clicking.
+Emoji Anywhere fixes that. Same shortcodes, every app, no clicking. If you've used Rocket on Mac, this is that idea for Windows.
 
 ```
 :fire:    →  🔥   (converts the moment you close it)
 :skull:   →  💀
 :sob:     →  😭
-:sad      →  😢 😭 😞   (not sure of the name? search by meaning)
+:sad      →  😢 😭 😓   (not sure of the name? search by meaning)
 ```
 
 ## How it works
@@ -51,6 +51,7 @@ Press **Esc** to close the popup and keep typing normally.
 - **Never steals focus.** The popup shows up, you keep typing in your app.
 - **Learns you.** The emojis you use most rank first.
 - **Knows Discord, Slack and GitHub shortcodes**, plus keywords and tags.
+- **Every emoji up to Emoji 17.0**, including all skin tones (`:thumbsup_tone3:` → 👍🏽).
 - **Stays out of password fields**, always.
 - **Ignored apps list** for games, terminals or anything you want left alone.
 - **Your clipboard is safe.** If an app needs the emoji pasted in, your clipboard gets put back right after.

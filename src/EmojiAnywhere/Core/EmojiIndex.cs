@@ -6,7 +6,9 @@ namespace EmojiAnywhere.Core;
 
 public sealed record Emoji(string Hex, string Unicode, string Label, string[] Shortcodes, string[] Tags, int Order)
 {
-    public string PrimaryShortcode => Shortcodes.Length > 0 ? Shortcodes[0] : Label.Replace(' ', '_');
+    // Prefer a word over symbols, so 👍 shows as :thumbsup: and not :+1:
+    public string PrimaryShortcode =>
+        Shortcodes.FirstOrDefault(s => char.IsLetter(s[0])) ?? (Shortcodes.Length > 0 ? Shortcodes[0] : Label.Replace(' ', '_'));
 }
 
 // All emoji data is built into the app. Nothing is downloaded.
@@ -40,6 +42,7 @@ public sealed class EmojiIndex
             double s = MatchScore(e, query);
             if (s <= 0) continue;
             s += _usage.Bonus(e.Hex);
+            if (Popular.Contains(e.Unicode)) s += 30;
             scored.Add((e, s));
         }
 
@@ -50,6 +53,18 @@ public sealed class EmojiIndex
             .Select(x => x.e)
             .ToList();
     }
+
+    // Emojis most people reach for. A small nudge so :sad shows 😢 😭 before rare ones,
+    // until the app learns what you personally use.
+    private static readonly HashSet<string> Popular = new()
+    {
+        "😂", "❤️", "🤣", "👍", "😭", "🙏", "😘", "🥰", "😍", "😊", "🎉", "😁", "💕", "🥺", "😅", "🔥",
+        "🤦", "🤷", "🙄", "😆", "🤗", "😉", "🤔", "👏", "🙂", "😳", "🥳", "😎", "👌", "💜", "😔", "💪",
+        "✨", "💖", "👀", "😋", "😏", "😢", "💯", "😩", "😡", "😜", "🙈", "🤞", "😄", "🤤", "🙌", "🤪",
+        "😀", "💀", "💔", "😌", "🤩", "🙃", "😬", "😱", "😴", "🤭", "😐", "😇", "😈", "😞", "🖤", "💩",
+        "✅", "👋", "🤮", "😤", "🤢", "🌟", "😥", "🌈", "😝", "😫", "😲", "🤯", "💃", "👊", "🤬", "😕",
+        "⚡", "☕", "⭐", "🤨", "🤘", "🤝", "😓", "😟", "😣", "🧐", "😠", "🤠", "😛", "😑", "🫡", "🫠", "😮‍💨"
+    };
 
     private static double MatchScore(Emoji e, string q)
     {
@@ -62,7 +77,8 @@ public sealed class EmojiIndex
         }
         foreach (var t in e.Tags)
         {
-            if (t == q) best = Math.Max(best, 350);
+            // An exact meaning match (:lol finds 😂) beats a longer name that only starts the same (lollipop)
+            if (t == q) best = Math.Max(best, 590 - e.PrimaryShortcode.Length / 10.0);
             else if (t.StartsWith(q)) best = Math.Max(best, 250);
         }
         foreach (var word in e.Label.Split(' '))
