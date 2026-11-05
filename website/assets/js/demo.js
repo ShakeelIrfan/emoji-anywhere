@@ -6,6 +6,7 @@
   const measure = document.getElementById("measure");
   const out = document.getElementById("out");
   if (!input || !list || !window.EMOJI_DATA) return;
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   // Same ranking idea as the app: exact code, start of code, tag, then a nudge for popular ones
   const popular = new Set("😂❤️🤣👍😭🙏😘🥰😍😊🎉😁💕🥺😅🔥🤔👏🙂😎👌💜😔💪✨💖👀😋😢💯😩😡😜🙈🤞😄🙌🤪😀💀💔😌🤩🙃😬😱😴😇😈😞🖤💩✅👋🤮😤🤢🌟🌈🤯💃👊🤬😕⚡☕⭐🤨🤘🤝🫡🫠".match(/\p{Extended_Pictographic}️?/gu));
@@ -89,9 +90,24 @@
     input.removeAttribute("aria-activedescendant");
   }
 
+  // A quick pop of the emoji above the cursor, so you see what just happened
+  function burst(emoji) {
+    if (reduceMotion) return;
+    measure.textContent = input.value.slice(0, input.selectionStart);
+    const b = document.createElement("span");
+    b.className = "burst";
+    b.setAttribute("aria-hidden", "true");
+    b.textContent = emoji;
+    b.style.left = Math.min(measure.offsetWidth - input.scrollLeft + 6, input.clientWidth - 20) + "px";
+    b.style.top = "0px";
+    input.parentElement.appendChild(b);
+    b.addEventListener("animationend", () => b.remove());
+  }
+
   function pick(e, keepFocus = true) {
     const caret = input.selectionStart;
     input.setRangeText(e[0], start, caret, "end");
+    burst(e[0]);
     close();
     out.textContent = `Inserted ${e[0]} for :${word(e)}:`;
     if (keepFocus) input.focus();
@@ -104,6 +120,7 @@
     const hit = m && byCode.get(m[2].toLowerCase());
     if (hit) {
       input.setRangeText(hit[0], caret - m[2].length - 2, caret, "end");
+      burst(hit[0]);
       out.textContent = `Inserted ${hit[0]} for :${m[2].toLowerCase()}:`;
       return close();
     }
@@ -120,26 +137,28 @@
   input.addEventListener("blur", () => setTimeout(close, 100));
   input.addEventListener("click", update);
 
-  // Until someone types, show it working once, slowly, then stop. Skipped for reduced motion.
-  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (reduce) return;
+  // Until someone clicks in, show a few examples, then stop. Skipped for reduced motion.
+  if (reduceMotion) return;
   let touched = false;
   input.addEventListener("focus", () => { touched = true; });
-  const script = "nice work :fir";
-  let i = 0;
-  setTimeout(function step() {
-    if (touched) return;
-    if (i < script.length) {
-      input.value += script[i++];
-      input.setSelectionRange(input.value.length, input.value.length);
-      update();
-      setTimeout(step, 90 + Math.random() * 60);
-    } else {
-      setTimeout(() => {
-        if (touched || !results.length) return;
-        pick(results[0], false);
-        out.textContent = "Your turn. Click the box and try :sad or :skull";
-      }, 900);
+  // Each example: text to type, then "pick" (choose from the popup) or "done" (a full code converts by itself)
+  const examples = [["nice work :fir", "pick"], ["monday again :sob:", "done"], ["ship it :rocket:", "done"], ["that meme :lol", "pick"]];
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+  (async () => {
+    await wait(1200);
+    for (const [text, how] of examples) {
+      if (touched) return;
+      input.value = "";
+      for (const ch of text) {
+        if (touched) return;
+        input.value += ch;
+        input.setSelectionRange(input.value.length, input.value.length);
+        input.dispatchEvent(new Event("input"));
+        await wait(85 + Math.random() * 60);
+      }
+      if (how === "pick") { await wait(800); if (touched || !results.length) return; pick(results[0], false); }
+      await wait(1700);
     }
-  }, 1400);
+    if (!touched) out.textContent = "Your turn. Click the box and try :sad or :skull";
+  })();
 })();
