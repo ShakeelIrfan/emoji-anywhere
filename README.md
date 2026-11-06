@@ -1,19 +1,15 @@
-<!-- TODO before launch: remove the status note below, add demo.gif to docs/, uncomment the demo line, set up the GitHub Actions release build, and re-check every claim here against the real app. -->
-
-> **🚧 Status: in development.** Not ready to download yet. Star the repo to get notified when v1 drops.
-
 <div align="center">
 
 # Emoji Anywhere
 
-### Type `:fire:` → get 🔥. In every app on Windows.
+### Type `:fire:` → get 🔥. In the apps you type in on Windows.
 
 Discord style emoji autocomplete for the apps you type in. Built to work anywhere you can type ([see where it's tested](docs/TESTING.md)).
 Free, open source, and it never touches the internet.
 
-<!-- ![Emoji Anywhere demo](docs/demo.gif) -->
+[![Typing :lol in Edge shows emoji suggestions](website/assets/video/demo-poster.png)](https://emoji-anywhere.vercel.app)
 
-[**Download for Windows**](../../releases/latest) · [How it works](#how-it-works) · [Privacy](#privacy-you-can-check)
+[**Download for Windows**](../../releases/latest) · [Website](https://emoji-anywhere.vercel.app) · [How it works](#how-it-works) · [Privacy](#privacy-you-can-check)
 
 ![Windows 10 and 11](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?logo=windows&logoColor=white)
 ![License MIT](https://img.shields.io/badge/license-MIT-green)
@@ -27,7 +23,7 @@ Free, open source, and it never touches the internet.
 
 On Discord you type `:skull:` and it just works. Then you switch to WhatsApp, Word or your code editor, and you're back to opening a menu and scrolling for the right face.
 
-Emoji Anywhere fixes that. Same shortcodes, every app, no clicking. If you've used Rocket on Mac, this is that idea for Windows.
+Emoji Anywhere fixes that. Same shortcodes, in your other apps, no clicking. If you've used Rocket on Mac, this is that idea for Windows.
 
 ```
 :fire:    →  🔥   (converts the moment you close it)
