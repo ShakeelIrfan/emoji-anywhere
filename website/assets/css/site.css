@@ -204,6 +204,8 @@ h2 { font-size: clamp(2rem, 3.8vw, 3rem); line-height: 1.06; letter-spacing: -0.
 .get img { width: 96px; height: 96px; border-radius: 22px; margin: 0 auto var(--s5); }
 .get h2 { margin: 0 auto var(--s3); }
 .get .meta { color: var(--muted); margin: 0 auto var(--s6); max-width: 46ch; }
+.get .store-badge { display: block; width: max-content; margin: var(--s4) auto 0; border-radius: 6px; }
+.get .store-badge img { display: block; height: 48px; width: auto; }
 .get .alt { margin: var(--s5) auto 0; color: var(--muted); font-size: 0.94rem; max-width: 60ch; }
 
 /* Footer */

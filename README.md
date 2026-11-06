@@ -9,6 +9,8 @@ Free, open source, and it never touches the internet.
 
 [![Typing :lol in Edge shows emoji suggestions](website/assets/video/demo-poster.png)](https://emoji-anywhere.vercel.app)
 
+<a href="https://apps.microsoft.com/detail/9P274FBKN1S8?mode=direct"><img src="website/assets/img/ms-store-badge-dark.svg" alt="Get it from Microsoft" height="48"></a>
+
 [**Download for Windows**](../../releases/latest) · [Website](https://emoji-anywhere.vercel.app) · [How it works](#how-it-works) · [Privacy](#privacy-you-can-check)
 
 ![Windows 10 and 11](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?logo=windows&logoColor=white)
