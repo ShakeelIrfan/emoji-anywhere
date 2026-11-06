@@ -18,7 +18,7 @@ C# / .NET 8, WPF. One tray process, no main window.
 | `KeyboardHook` | WH_KEYBOARD_LL and WH_MOUSE_LL on their own thread. Mouse hook only notes "a button was pressed". Skips only keys the app sends itself (marked with a tag), so on-screen keyboards still work. |
 | `AutocompleteController` | Keeps the `:query` while it is typed, nothing else. Triggers only when `:` follows a space, a new line, a click or a window switch. Swallows arrows, Enter, Tab and Esc only while the popup is open. |
 | `ContextGuard` | Skips password fields, ignored apps and windows it cannot read (admin windows). |
-| `CaretLocator` | Finds the text cursor: GetGUIThreadInfo, then UI Automation. Falls back to the mouse position. |
+| `CaretLocator` | Finds the text cursor: GetGUIThreadInfo, then the accessibility caret (needed for VS Code and other Chromium apps), then UI Automation. Falls back to the mouse position. |
 | `EmojiIndex` | Built in emoji data with Discord, Slack and GitHub shortcodes plus keyword tags. In memory search ranked by exact, prefix, tag, popularity, then your usage and recency. |
 | `SuggestionPopup` | WPF window that never takes focus (WS_EX_NOACTIVATE, WS_EX_TOOLWINDOW). Rounded, shadow, follows Windows light or dark mode. Software rendered to keep memory low. |
 | `EmojiRenderer` | Draws color emoji with Direct2D and DirectWrite from the Windows emoji font, because WPF only draws them in black and white. Small cache of bitmaps. |

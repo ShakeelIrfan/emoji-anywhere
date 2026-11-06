@@ -1,3 +1,4 @@
+using System.IO;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -50,6 +51,8 @@ static class Program
         if (mode == "paste")
             File.WriteAllText(Path.Combine(appData, "EmojiAnywhere", "settings.json"), "{\"PasteModeApps\":[\"" + Process.GetCurrentProcess().ProcessName + "\"]}");
 
+        // A copy that is already running would make the test copy show its "already running" notice instead
+        if (Process.GetProcessesByName("EmojiAnywhere").Length > 0) { Log("FAIL: quit the running Emoji Anywhere first"); fail++; return; }
         var psi = new ProcessStartInfo(exe) { UseShellExecute = false };
         psi.Environment["EMOJIANYWHERE_DATA"] = Path.Combine(appData, "EmojiAnywhere"); // keeps the test away from the real settings and usage files
         app = Process.Start(psi)!;
@@ -88,8 +91,9 @@ static class Program
         app.Refresh();
         var cpu0 = app.TotalProcessorTime; await Task.Delay(5000); app.Refresh();
         Log($"app CPU while idle over 5 s: {(app.TotalProcessorTime - cpu0).TotalMilliseconds:0} ms");
-        await Task.Delay(8000); app.Refresh();
-        Log($"app RAM after 13 s idle: working set {app.WorkingSet64 / 1048576.0:0.0} MB, private {app.PrivateMemorySize64 / 1048576.0:0.0} MB");
+        // The app trims its memory 30 seconds after the popup closes
+        await Task.Delay(30000); app.Refresh();
+        Log($"app RAM after 35 s idle: working set {app.WorkingSet64 / 1048576.0:0.0} MB, private {app.PrivateMemorySize64 / 1048576.0:0.0} MB");
     }
 
     // Tests in Microsoft Edge using a throwaway profile and a blank local page made for the test.
@@ -213,7 +217,7 @@ static class Program
                 GetWindowRect(hwnd, out var r);
                 await ClickScreen(r.Left + (r.Right - r.Left) / 2, r.Top + (r.Bottom - r.Top) / 2);
                 await Task.Delay(200);
-                if (GetForegroundWindow() != hwnd) { aborted = true; Log("ABORT: could not focus the VS Code test window"); return false; }
+                if (GetForegroundWindow() != hwnd) { aborted = true; Log($"ABORT: could not focus the VS Code test window (front: '{Title(GetForegroundWindow())}', test window: '{Title(hwnd)}')"); return false; }
                 return true;
             }
 
@@ -237,6 +241,7 @@ static class Program
             await CCase("time not triggered", "at 10:30 ok", "at 10:30 ok");
             await CCase("skin tone", ":thumbsup_tone3:", "👍🏽");
 
+            int startLeft = int.MinValue;
             if (!aborted && await FocusCode())
             {
                 await Type("{CTRLA}{BACK}");
@@ -250,8 +255,35 @@ static class Program
                 {
                     GetWindowRect(pop, out var pr);
                     Check("vscode: popup visible", true, "");
-                    Log($"vscode: popup at {pr.Left},{pr.Top}; window top-left {wr.Left},{wr.Top}; mouse {mouse.X},{mouse.Y}");
+                    Log($"vscode: popup at {pr.Left},{pr.Top}; window {wr.Left},{wr.Top} to {wr.Right},{wr.Bottom}; mouse {mouse.X},{mouse.Y}");
+                    LogCaretSources(hwnd);
                     Check("vscode: popup at text cursor (not mouse fallback)", Math.Abs(pr.Top - (mouse.Y + 20 - 6)) > 8 || Math.Abs(pr.Left - (mouse.X - 12)) > 8, "");
+                    // ":fir" sits at the start of the first line, so the popup belongs in the left part of the editor near the top
+                    int width = wr.Right - wr.Left, height = wr.Bottom - wr.Top;
+                    Check("vscode: popup next to the typed text", pr.Left < wr.Left + width * 0.45 && pr.Top < wr.Top + height * 0.4, $"popup {pr.Left},{pr.Top}");
+                    startLeft = pr.Left;
+                }
+                await Type("{ESC}{CTRLA}{BACK}{CTRLS}");
+            }
+
+            // Middle of a long line: the popup must follow the cursor, not jump to the end of the line
+            if (!aborted && await FocusCode())
+            {
+                await Type("{CTRLA}{BACK}");
+                await Type("the quick brown fox jumps over the lazy dog and keeps running far far away from here", 10);
+                await Type("{HOME}" + string.Concat(Enumerable.Repeat("{RIGHT}", 10)) + " :fir");
+                await Task.Delay(500);
+                var pop = AppWindows().FirstOrDefault();
+                GetWindowRect(hwnd, out var wr);
+                if (pop == IntPtr.Zero) Check("vscode: popup visible mid-line", false, "");
+                else
+                {
+                    GetWindowRect(pop, out var pr);
+                    Log($"vscode mid-line: popup at {pr.Left},{pr.Top}; window {wr.Left},{wr.Top} to {wr.Right},{wr.Bottom}");
+                    LogCaretSources(hwnd);
+                    int width = wr.Right - wr.Left, height = wr.Bottom - wr.Top;
+                    // The cursor is 11 characters further right than in the line start case, so the popup must move right too
+                    Check("vscode: popup follows the cursor mid-line", pr.Left > startLeft + 60 && pr.Left < wr.Left + width * 0.45 && pr.Top < wr.Top + height * 0.4, $"popup {pr.Left},{pr.Top}, line start popup at {startLeft}");
                 }
                 await Type("{ESC}{CTRLA}{BACK}{CTRLS}");
             }
@@ -267,6 +299,58 @@ static class Program
             }
         }
     }
+
+    // Logs what each caret source reports for a window, to see which one an app gets wrong
+    static void LogCaretSources(IntPtr hwnd)
+    {
+        uint thread = GetWindowThreadProcessId(hwnd, out _);
+        var gti = new GUITHREADINFO { cbSize = Marshal.SizeOf<GUITHREADINFO>() };
+        if (GetGUIThreadInfo(thread, ref gti))
+        {
+            var p = new POINT { X = gti.rcCaret.Left, Y = gti.rcCaret.Bottom };
+            ClientToScreen(gti.hwndCaret, ref p);
+            Log($"  win32 caret: hwndCaret={gti.hwndCaret} rc={gti.rcCaret.Left},{gti.rcCaret.Top},{gti.rcCaret.Right},{gti.rcCaret.Bottom} screen={p.X},{p.Y}");
+        }
+        try
+        {
+            var el = System.Windows.Automation.AutomationElement.FocusedElement;
+            Log($"  uia focused: {el?.Current.ControlType.ProgrammaticName} '{el?.Current.Name}' class={el?.Current.ClassName} box={el?.Current.BoundingRectangle}");
+            if (el != null && el.TryGetCurrentPattern(System.Windows.Automation.TextPattern.Pattern, out object pat))
+            {
+                var sel = ((System.Windows.Automation.TextPattern)pat).GetSelection();
+                Log($"  uia selections: {sel.Length}");
+                if (sel.Length > 0)
+                {
+                    Log($"  uia sel rects: {string.Join(" | ", sel[0].GetBoundingRectangles())}");
+                    var r = sel[0].Clone();
+                    r.MoveEndpointByUnit(System.Windows.Automation.Text.TextPatternRangeEndpoint.Start, System.Windows.Automation.Text.TextUnit.Character, -1);
+                    Log($"  uia back1 text='{r.GetText(20)}' rects: {string.Join(" | ", r.GetBoundingRectangles())}");
+                }
+            }
+            else Log("  uia: no TextPattern");
+            if (el != null && el.TryGetCurrentPattern(System.Windows.Automation.TextPattern.Pattern, out object pat2))
+            {
+                var doc = ((System.Windows.Automation.TextPattern)pat2).DocumentRange;
+                Log($"  uia doc text='{doc.GetText(200).Replace('\n', '|')}'");
+            }
+        }
+        catch (Exception ex) { Log("  uia error: " + ex.Message); }
+        try
+        {
+            IntPtr target = gti.hwndFocus != IntPtr.Zero ? gti.hwndFocus : hwnd;
+            var iid = new Guid("618736E0-3C3D-11CF-810C-00AA00389B71");
+            if (AccessibleObjectFromWindow(target, unchecked((uint)-8), ref iid, out object acc) == 0 && acc is Accessibility.IAccessible ia)
+            {
+                ia.accLocation(out int l, out int t, out int w, out int h, 0);
+                Log($"  msaa caret: {l},{t},{w},{h} (focus hwnd {target})");
+            }
+            else Log("  msaa caret: none");
+        }
+        catch (Exception ex) { Log("  msaa error: " + ex.Message); }
+    }
+    [StructLayout(LayoutKind.Sequential)] struct GUITHREADINFO { public int cbSize, flags; public IntPtr hwndActive, hwndFocus, hwndCapture, hwndMenuOwner, hwndMoveSize, hwndCaret; public RECT rcCaret; }
+    [DllImport("user32.dll")] static extern bool GetGUIThreadInfo(uint t, ref GUITHREADINFO g);
+    [DllImport("oleacc.dll")] static extern int AccessibleObjectFromWindow(IntPtr h, uint id, ref Guid iid, [MarshalAs(UnmanagedType.IUnknown)] out object o);
 
     static IntPtr FindByTitlePrefix(string prefix)
     {
@@ -406,7 +490,7 @@ static class Program
                 int end = keys.IndexOf('}', i);
                 if (keys[(i + 1)..end] == "CTRLS") { SendKey(0x11, false); SendKey(0x53, false); SendKey(0x53, true); SendKey(0x11, true); i = end; await Task.Delay(delay); continue; }
                 if (keys[(i + 1)..end] == "CTRLA") { SendKey(0x11, false); SendKey(0x41, false); SendKey(0x41, true); SendKey(0x11, true); i = end; await Task.Delay(delay); continue; }
-                vk = keys[(i + 1)..end] switch { "ENTER" => 0x0D, "TAB" => 0x09, "ESC" => 0x1B, "DOWN" => 0x28, "UP" => 0x26, "BACK" => 0x08, _ => 0 };
+                vk = keys[(i + 1)..end] switch { "ENTER" => 0x0D, "TAB" => 0x09, "ESC" => 0x1B, "DOWN" => 0x28, "UP" => 0x26, "BACK" => 0x08, "HOME" => 0x24, "RIGHT" => 0x27, _ => 0 };
                 i = end;
             }
             else
