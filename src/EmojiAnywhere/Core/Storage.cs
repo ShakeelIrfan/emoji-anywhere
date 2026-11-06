@@ -9,6 +9,16 @@ internal static class AppPaths
 {
     public static bool IsCustomFolder => !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("EMOJIANYWHERE_DATA"));
 
+    // True when installed from the Microsoft Store (MSIX). Windows then handles "start with Windows" itself.
+    public static readonly bool IsPackaged = DetectPackage();
+    private static bool DetectPackage()
+    {
+        try { int len = 0; return GetCurrentPackageFullName(ref len, null) != 15700; } // 15700 = APPMODEL_ERROR_NO_PACKAGE
+        catch { return false; }
+    }
+    [System.Runtime.InteropServices.DllImport("kernel32.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode)]
+    private static extern int GetCurrentPackageFullName(ref int length, char[]? name);
+
     public static string Folder
     {
         get
@@ -84,6 +94,7 @@ public sealed class Settings
     // Adds or removes the "start with Windows" entry for the current user
     public static void ApplyStartup(bool on)
     {
+        if (AppPaths.IsPackaged) return; // the Store version starts through its own startup task
         try
         {
             using var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", true);

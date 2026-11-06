@@ -52,6 +52,18 @@ jobs:
           & $iscc installer/EmojiAnywhere.iss "/DAppVersion=$version" "/DSourceExe=$PWD\out\standalone\EmojiAnywhere.exe"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
+      - name: Build Microsoft Store package
+        shell: pwsh
+        run: |
+          $version = if ($env:GITHUB_REF -like 'refs/tags/v*') { $env:GITHUB_REF_NAME.TrimStart('v') } else { '0.0.0' }
+          ./packaging/build-msix.ps1 -Version $version -SourceExe out/standalone/EmojiAnywhere.exe -Out out/msix/EmojiAnywhere.msix
+
+      # The Store package is uploaded to Partner Center by hand, so it is kept apart from the release files
+      - uses: actions/upload-artifact@v4
+        with:
+          name: EmojiAnywhere-Store
+          path: out/msix/EmojiAnywhere.msix
+
       - name: Collect files
         shell: pwsh
         run: |

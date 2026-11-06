@@ -178,11 +178,14 @@
                     <TextBlock Text="Popup size" Style="{StaticResource Label}" />
                     <UniformGrid x:Name="SizeRow" Rows="1" Margin="0,0,0,12" />
 
-                    <Grid Margin="2,2,0,2">
+                    <Grid x:Name="StartupRow" Margin="2,2,0,2">
                         <TextBlock Text="Start with Windows" VerticalAlignment="Center" />
                         <ToggleButton x:Name="StartupSwitch" Style="{StaticResource Switch}" HorizontalAlignment="Right"
                                       AutomationProperties.Name="Start with Windows" />
                     </Grid>
+                    <TextBlock x:Name="StartupStoreNote" Visibility="Collapsed" TextWrapping="Wrap" Margin="2,2,0,2"
+                               Foreground="{DynamicResource Fly.Muted}" FontSize="12"
+                               Text="Starts with Windows. To change it, open Settings, then Apps, then Startup." />
                 </StackPanel>
             </Border>
 

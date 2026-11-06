@@ -46,6 +46,7 @@ public partial class TrayFlyout : Window
         EnabledSwitch.Unchecked += onEnabled;
         PauseButton.Click += (_, _) => { _host.TogglePause(); Refresh(); };
         StartupSwitch.IsChecked = host.Settings.StartWithWindows;
+        if (AppPaths.IsPackaged) { StartupRow.Visibility = Visibility.Collapsed; StartupStoreNote.Visibility = Visibility.Visible; }
         RoutedEventHandler onStartup = (_, _) => { AnimateSwitch(StartupSwitch); _host.SetStartup(StartupSwitch.IsChecked == true); };
         StartupSwitch.Checked += onStartup;
         StartupSwitch.Unchecked += onStartup;
