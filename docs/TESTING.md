@@ -24,6 +24,10 @@ Measured in the plain text box test:
   line, because VS Code's UI Automation text box reports a placeholder spot. The app now reads the
   accessibility caret first, which VS Code and other Chromium apps keep up to date.
 
+## Apps with their own shortcodes
+
+Discord and Slack already show their own `:emoji` popup, so Emoji Anywhere stays quiet in them by default (tray panel: "Stay quiet in Discord and Slack"). Found 2026-11-07 when both popups showed at once in Discord.
+
 ## Not tested yet
 
 Windows 11 Notepad, Word, Discord, Slack, WhatsApp desktop, games (chat in windowed, borderless

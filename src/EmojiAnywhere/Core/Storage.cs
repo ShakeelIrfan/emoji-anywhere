@@ -72,6 +72,11 @@ public sealed class Settings
         "WindowsTerminal", "cmd", "powershell", "pwsh", "conhost", "mintty", "putty", "OpenConsole"
     };
 
+    // Apps with their own :shortcode popup (Discord, Slack). Showing ours there too just doubles up,
+    // so stay quiet in them unless the person turns this off in the tray panel.
+    public bool QuietInShortcodeApps { get; set; } = true;
+    public static readonly string[] ShortcodeApps = { "Discord", "DiscordPTB", "DiscordCanary", "DiscordDevelopment", "slack" };
+
     // Apps that reject typed unicode and need the clipboard paste method
     public List<string> PasteModeApps { get; set; } = new();
 

@@ -193,6 +193,14 @@
             <Border Margin="8,0,8,8" Padding="12,12,12,6" CornerRadius="8" Background="{DynamicResource Fly.Card}"
                     BorderBrush="{DynamicResource Fly.Border}" BorderThickness="1">
                 <StackPanel>
+                    <Grid Margin="2,0,0,8">
+                        <StackPanel Margin="0,0,52,0">
+                            <TextBlock Text="Stay quiet in Discord and Slack" TextWrapping="Wrap" />
+                            <TextBlock Text="They have their own :emoji popup" FontSize="11" Foreground="{DynamicResource Fly.Muted}" />
+                        </StackPanel>
+                        <ToggleButton x:Name="QuietSwitch" Style="{StaticResource Switch}" HorizontalAlignment="Right" VerticalAlignment="Center"
+                                      AutomationProperties.Name="Stay quiet in Discord and Slack" />
+                    </Grid>
                     <TextBlock Text="Ignored apps" Style="{StaticResource Label}" />
                     <WrapPanel x:Name="IgnoredChips" Margin="0,0,0,6" />
                     <TextBlock Style="{StaticResource Label}">

@@ -98,6 +98,12 @@ class Program
         Invoke(startup);
         Check("start with Windows can be turned off", host.StartupSetTo == false);
 
+        var quiet = Find<System.Windows.Controls.Primitives.ToggleButton>(f, t => Name(t) == "Stay quiet in Discord and Slack")!;
+        Check("quiet in Discord and Slack is on by default", quiet.IsChecked == true && host.Settings.QuietInShortcodeApps);
+        Invoke(quiet);
+        Check("quiet in Discord and Slack can be turned off", !host.Settings.QuietInShortcodeApps);
+        Invoke(quiet);
+
         Invoke(Find<System.Windows.Controls.Button>(f, b => Name(b) == "Remove cmd")!);
         Pump(300);
         Check("removing a chip removes the app", !host.Settings.IgnoredApps.Contains("cmd"));

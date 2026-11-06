@@ -17,6 +17,7 @@ public static class ContextGuard
         if (name.Length == 0) return true; // could not read it, likely an admin window
         if (name.Equals("EmojiAnywhere", StringComparison.OrdinalIgnoreCase)) return false;
         if (settings.IgnoredApps.Contains(name, StringComparer.OrdinalIgnoreCase)) return true;
+        if (settings.QuietInShortcodeApps && Settings.ShortcodeApps.Contains(name, StringComparer.OrdinalIgnoreCase)) return true;
         return IsPasswordField();
     }
 

@@ -50,6 +50,10 @@ public partial class TrayFlyout : Window
         RoutedEventHandler onStartup = (_, _) => { AnimateSwitch(StartupSwitch); _host.SetStartup(StartupSwitch.IsChecked == true); };
         StartupSwitch.Checked += onStartup;
         StartupSwitch.Unchecked += onStartup;
+        QuietSwitch.IsChecked = host.Settings.QuietInShortcodeApps;
+        RoutedEventHandler onQuiet = (_, _) => { AnimateSwitch(QuietSwitch); _host.Settings.QuietInShortcodeApps = QuietSwitch.IsChecked == true; _host.Settings.Save(); };
+        QuietSwitch.Checked += onQuiet;
+        QuietSwitch.Unchecked += onQuiet;
         SourceButton.Click += (_, _) => { _host.OpenSource(); Close(); };
         QuitButton.Click += (_, _) => { Close(); _host.Quit(); };
 
