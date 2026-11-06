@@ -1,0 +1,11 @@
+name: Idea or missing shortcode
+description: Suggest a feature, or a shortcode that should find an emoji but doesn't
+labels: [enhancement]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you like?
+      placeholder: e.g. :goat should also find 🐐, or an option to show the popup above the cursor
+    validations:
+      required: true

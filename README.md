@@ -70,9 +70,13 @@ Everything is open source under the MIT license. Read every line.
 
 ## Which download?
 
-- **EmojiAnywhere-Setup.exe** (recommended) installs it for your user (no admin needed), starts it with Windows, and adds a normal uninstaller in Windows Settings.
+- **[Microsoft Store](https://apps.microsoft.com/detail/9P274FBKN1S8?mode=direct)** (easiest) installs and updates it automatically, with no Windows warning screen.
+- **EmojiAnywhere-Setup.exe** installs it for your user (no admin needed), starts it with Windows, and adds a normal uninstaller in Windows Settings.
 - **EmojiAnywhere.exe** (about 3 MB) needs the free [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0). Windows offers to install it the first time if you don't have it.
 - **EmojiAnywhere-standalone.exe** is bigger but runs with nothing else installed. No setup, nothing written outside your user settings folder.
+- With winget (once the listing is approved): `winget install ShakeelIrfan.EmojiAnywhere`
+
+The GitHub downloads aren't code signed yet, so Windows may show "Windows protected your PC". Click **More info**, then **Run anyway**. Every file is built by GitHub Actions from this code, and you can check that with `gh attestation verify`.
 
 ## Tray menu
 
@@ -113,7 +117,7 @@ dotnet build src/EmojiAnywhere
 
 ## Contributing
 
-Found a missing shortcode or a bug? Open an issue or a pull request.
+Found a missing shortcode or a bug? [Open an issue](../../issues/new/choose) or a pull request. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ---
 

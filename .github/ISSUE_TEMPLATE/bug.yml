@@ -1,0 +1,36 @@
+name: Something doesn't work
+description: The popup doesn't show, shows in the wrong place, or the emoji doesn't get inserted
+labels: [bug]
+body:
+  - type: input
+    id: app
+    attributes:
+      label: Which app were you typing in?
+      placeholder: e.g. Discord, Word, Notepad, Chrome, a game
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what did you expect?
+      placeholder: I typed :fire and the popup showed at the top of the screen instead of next to my text.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Emoji Anywhere version and where you got it
+      placeholder: e.g. 0.1.0 from the Microsoft Store (version is in Windows Settings, Apps)
+  - type: input
+    id: windows
+    attributes:
+      label: Windows version
+      placeholder: e.g. Windows 11 24H2
+  - type: input
+    id: layout
+    attributes:
+      label: Keyboard layout (if not US English)
+      placeholder: e.g. German QWERTZ
+  - type: markdown
+    attributes:
+      value: Please don't paste anything private. Emoji Anywhere never records what you type, so there are no logs to attach.
