@@ -4,7 +4,7 @@
 // Storage: a Supabase table (see supabase/feedback.sql), reached with two environment variables
 // set in Vercel. Until they are set, this returns 503 and the page says it could not send.
 //   SUPABASE_URL                like https://xxxx.supabase.co
-//   SUPABASE_SERVICE_ROLE_KEY   server only, never sent to the browser
+//   SUPABASE_SERVICE_ROLE_KEY   a secret key (sb_secret_...) or the legacy service_role key; server only
 
 const ANSWERS = {
   uninstall: ["got_in_the_way", "app_not_working", "did_not_use", "slow", "found_other", "privacy", "reinstalling", "other"],
@@ -34,6 +34,8 @@ const ALLOWED_ORIGINS = new Set(["https://emoji-anywhere.vercel.app"]);
 
 module.exports = async (req, res) => {
   res.setHeader("Cache-Control", "no-store");
+  // Daily keep-alive from Vercel Cron (vercel.json): one tiny read so the free database never pauses.
+  if (req.method === "GET" && String(req.headers["user-agent"] || "").startsWith("vercel-cron/")) return keepAlive(res);
   if (req.method !== "POST") { res.setHeader("Allow", "POST"); return res.status(405).json({ error: "Use POST." }); }
 
   const origin = String(req.headers.origin || "");
@@ -66,7 +68,7 @@ module.exports = async (req, res) => {
   try {
     const r = await fetch(`${url.replace(/\/$/, "")}/rest/v1/emoji_feedback`, {
       method: "POST",
-      headers: { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json", Prefer: "return=minimal" },
+      headers: { ...auth(key), "Content-Type": "application/json", Prefer: "return=minimal" },
       body: JSON.stringify({ kind, answer, note: note || null, version: version || null }),
     });
     if (!r.ok) {
@@ -79,3 +81,19 @@ module.exports = async (req, res) => {
     return res.status(502).json({ error: "Could not save right now." });
   }
 };
+
+async function keepAlive(res) {
+  const url = process.env.SUPABASE_URL, key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) return res.status(503).json({ error: "Feedback storage is not set up yet." });
+  try {
+    const r = await fetch(`${url.replace(/\/$/, "")}/rest/v1/emoji_feedback?select=id&limit=1`, { headers: auth(key) });
+    return res.status(r.ok ? 200 : 502).json({ ok: r.ok });
+  } catch {
+    return res.status(502).json({ ok: false });
+  }
+}
+
+// New Supabase secret keys (sb_secret_...) go only in the apikey header; older service_role keys are JWTs and also go in Authorization
+function auth(key) {
+  return key.startsWith("eyJ") ? { apikey: key, Authorization: `Bearer ${key}` } : { apikey: key };
+}

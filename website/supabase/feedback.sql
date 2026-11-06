@@ -13,6 +13,8 @@ create table if not exists public.emoji_feedback (
 -- Locked down: no public access at all. Only the server function (service role key) can insert,
 -- and only you can read it from the Supabase dashboard.
 alter table public.emoji_feedback enable row level security;
+revoke all on public.emoji_feedback from anon, authenticated;
+grant select, insert on public.emoji_feedback to service_role;
 
 -- Last resort backstop: 120 answers a minute and 5,000 a day, far above real traffic. Hitting it only pauses optional survey
 -- answers for a minute; the site and downloads are unaffected. Per-address limits live in the API.
@@ -35,3 +37,4 @@ create or replace view public.emoji_feedback_summary as
   select kind, answer, count(*) as total, max(created_at) as latest
   from public.emoji_feedback group by kind, answer order by kind, total desc;
 revoke all on public.emoji_feedback_summary from anon, authenticated;
+grant select on public.emoji_feedback_summary to service_role;
