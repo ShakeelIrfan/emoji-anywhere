@@ -77,7 +77,14 @@ end;
 procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
 var
   ErrorCode: Integer;
+  RunValue: String;
 begin
+  // The app can write its own "start with Windows" entry, so remove it whenever it points at this install
+  if (CurUninstallStep = usUninstall) and
+     RegQueryStringValue(HKCU, 'Software\Microsoft\Windows\CurrentVersion\Run', 'EmojiAnywhere', RunValue) and
+     (Pos(Lowercase(ExpandConstant('{app}')), Lowercase(RunValue)) > 0) then
+    RegDeleteValue(HKCU, 'Software\Microsoft\Windows\CurrentVersion\Run', 'EmojiAnywhere');
+
   if (CurUninstallStep = usPostUninstall) and (not UninstallSilent) then
     ShellExec('open', 'https://emoji-anywhere.vercel.app/bye?v={#AppVersion}', '', '', SW_SHOWNORMAL, ewNoWait, ErrorCode);
 end;
