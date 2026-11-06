@@ -35,7 +35,12 @@ const ALLOWED_ORIGINS = new Set(["https://emoji-anywhere.vercel.app"]);
 module.exports = async (req, res) => {
   res.setHeader("Cache-Control", "no-store");
   // Daily keep-alive from Vercel Cron (vercel.json): one tiny read so the free database never pauses.
-  if (req.method === "GET" && String(req.headers["user-agent"] || "").startsWith("vercel-cron/")) return keepAlive(res);
+  // The user agent can be faked, so it is rate limited like posts and returns nothing but ok.
+  if (req.method === "GET" && String(req.headers["user-agent"] || "").startsWith("vercel-cron/")) {
+    const ip = String(req.headers["x-forwarded-for"] || "").split(",")[0].trim();
+    if (tooMany("keepalive:" + ip)) return res.status(429).json({ error: "Too many requests." });
+    return keepAlive(res);
+  }
   if (req.method !== "POST") { res.setHeader("Allow", "POST"); return res.status(405).json({ error: "Use POST." }); }
 
   const origin = String(req.headers.origin || "");
