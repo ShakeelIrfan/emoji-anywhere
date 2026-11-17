@@ -98,11 +98,25 @@ class Program
         Invoke(startup);
         Check("start with Windows can be turned off", host.StartupSetTo == false);
 
-        var quiet = Find<System.Windows.Controls.Primitives.ToggleButton>(f, t => Name(t) == "Stay quiet in Discord and Slack")!;
-        Check("quiet in Discord and Slack is on by default", quiet.IsChecked == true && host.Settings.QuietInShortcodeApps);
+        var quiet = Find<System.Windows.Controls.Primitives.ToggleButton>(f, t => Name(t) == "Stay quiet in apps with emoji popups")!;
+        Check("quiet in emoji popup apps is on by default", quiet.IsChecked == true && host.Settings.QuietInShortcodeApps);
         Invoke(quiet);
-        Check("quiet in Discord and Slack can be turned off", !host.Settings.QuietInShortcodeApps);
+        Check("quiet in emoji popup apps can be turned off", !host.Settings.QuietInShortcodeApps);
         Invoke(quiet);
+
+        var titleBox = (System.Windows.Controls.TextBox)f.FindName("TitleBox");
+        var titleAdd = Find<System.Windows.Controls.Button>(f, b => Name(b) == "Add ignored site")!;
+        titleBox.Text = "j"; Invoke(titleAdd);
+        Check("one letter site is not added", host.Settings.IgnoredTitles.Count == 0);
+        titleBox.Text = "  Jira "; Invoke(titleAdd);
+        Check("ignored site added and trimmed", host.Settings.IgnoredTitles.SequenceEqual(new[] { "Jira" }) && titleBox.Text == "");
+        titleBox.Text = "jira"; Invoke(titleAdd);
+        Check("same site is not added twice", host.Settings.IgnoredTitles.Count == 1);
+        Check("ignored site shows as a chip", Find<System.Windows.Controls.Button>(f, b => Name(b) == "Remove Jira") != null);
+        Invoke(Find<System.Windows.Controls.Button>(f, b => Name(b) == "Remove Jira")!);
+        Pump(300);
+        Check("removing the site chip removes it", host.Settings.IgnoredTitles.Count == 0);
+        titleBox.Text = "Jira"; Invoke(titleAdd);
 
         Invoke(Find<System.Windows.Controls.Button>(f, b => Name(b) == "Remove cmd")!);
         Pump(300);
@@ -114,7 +128,19 @@ class Program
         Check("paste mode app added", host.Settings.PasteModeApps.Contains("Discord"));
 
         var saved = File.ReadAllText(System.IO.Path.Combine(Out, "flyout-data", "settings.json"));
-        Check("changes are saved to the settings file", saved.Contains("\"MaxResults\": 8") && saved.Contains("Discord"));
+        Check("changes are saved to the settings file", saved.Contains("\"MaxResults\": 8") && saved.Contains("Discord") && saved.Contains("Jira"));
+
+        // Optional picture of the panel for a visual check: set FLYOUT_SHOT to a .png path
+        if (Environment.GetEnvironmentVariable("FLYOUT_SHOT") is { Length: > 0 } shot)
+        {
+            var root = (FrameworkElement)f.Content;
+            var bmp = new System.Windows.Media.Imaging.RenderTargetBitmap((int)root.ActualWidth, (int)root.ActualHeight, 96, 96, PixelFormats.Pbgra32);
+            bmp.Render(root);
+            var png = new System.Windows.Media.Imaging.PngBitmapEncoder();
+            png.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(bmp));
+            using var fs = File.Create(shot);
+            png.Save(fs);
+        }
 
         Invoke(((System.Windows.Controls.Button)f.FindName("QuitButton")));
         Check("quit closes the panel and quits", host.Quitted && f.IsClosing);

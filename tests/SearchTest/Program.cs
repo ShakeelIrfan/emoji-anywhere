@@ -45,6 +45,18 @@ foreach (var q in new[] { "fi", "fir", "sa", "hea", "thu", "lo", "sk" })
 }
 Check("search is fast (under 20 ms after warm up)", times.Skip(1).Max() < 20, $"max {times.Skip(1).Max():0.0} ms");
 
+// Window title rules (issue #5)
+Check("Jira tab in Chrome is a picker site", TitleRules.IsShortcodeSite("ABC-12 Fix login - Jira - Google Chrome"));
+Check("Jira tab in Edge with more tabs", TitleRules.IsShortcodeSite("[ABC-12] Fix login - Jira and 3 more pages - Work - Microsoft​ Edge"));
+Check("Teams on the web", TitleRules.IsShortcodeSite("Chat | Alex Doe | Microsoft Teams - Google Chrome"));
+Check("Slack on the web", TitleRules.IsShortcodeSite("general (Channel) - Acme - Slack - Google Chrome"));
+Check("Discord on the web", TitleRules.IsShortcodeSite("Discord | #general | My Server - Google Chrome"));
+Check("an article about Jira is not", !TitleRules.IsShortcodeSite("Notes on Jira pricing - Google Chrome"));
+Check("a plain page is not", !TitleRules.IsShortcodeSite("Google Docs - Google Chrome"));
+Check("title rule matches any case", TitleRules.Ignored("Board - JIRA - Google Chrome", new[] { "jira" }));
+Check("title rule needs a match", !TitleRules.Ignored("YouTube - Google Chrome", new[] { "jira" }));
+Check("no rules, nothing ignored", !TitleRules.Ignored("Jira", Array.Empty<string>()));
+
 try { Directory.Delete(data, true); } catch { }
 Console.WriteLine($"RESULT pass={pass} fail={fail}");
 return fail == 0 ? 0 : 1;

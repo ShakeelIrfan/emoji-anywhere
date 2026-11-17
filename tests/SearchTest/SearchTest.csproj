@@ -9,6 +9,7 @@
   <ItemGroup>
     <Compile Include="..\..\src\EmojiAnywhere\Core\EmojiIndex.cs" />
     <Compile Include="..\..\src\EmojiAnywhere\Core\Storage.cs" />
+    <Compile Include="..\..\src\EmojiAnywhere\Core\TitleRules.cs" />
     <EmbeddedResource Include="..\..\src\EmojiAnywhere\Data\*.json" />
   </ItemGroup>
 </Project>

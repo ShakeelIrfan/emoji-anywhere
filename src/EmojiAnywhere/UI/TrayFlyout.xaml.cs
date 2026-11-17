@@ -64,6 +64,10 @@ public partial class TrayFlyout : Window
 
         BuildChips(IgnoredChips, () => _host.Settings.IgnoredApps, l => _host.Settings.IgnoredApps = l, "Ignore {0}");
         BuildChips(PasteChips, () => _host.Settings.PasteModeApps, l => _host.Settings.PasteModeApps = l, "Use in {0}");
+        BuildTitleChips();
+        TitleBox.TextChanged += (_, _) => TitleHint.Visibility = TitleBox.Text.Length == 0 ? Visibility.Visible : Visibility.Collapsed;
+        TitleBox.KeyDown += (_, e) => { if (e.Key == System.Windows.Input.Key.Enter) { AddTitle(); e.Handled = true; } };
+        TitleAdd.Click += (_, _) => AddTitle();
         Refresh();
 
         KeyDown += (_, e) => { if (e.Key == System.Windows.Input.Key.Escape) Close(); };
@@ -134,6 +138,37 @@ public partial class TrayFlyout : Window
                 Foreground = (Brush)FindResource("Fly.Muted"), FontSize = 12, Margin = new Thickness(2, 0, 0, 8)
             });
         }
+    }
+
+    // Ignored sites: click one to remove it
+    private void BuildTitleChips()
+    {
+        TitleChips.Children.Clear();
+        foreach (var rule in _host.Settings.IgnoredTitles)
+        {
+            var chip = Chip(rule, "", $"Remove {rule}");
+            chip.Click += (_, _) => FadeOut(chip, () =>
+            {
+                _host.Settings.IgnoredTitles = _host.Settings.IgnoredTitles.Where(r => !r.Equals(rule, StringComparison.OrdinalIgnoreCase)).ToList();
+                _host.Settings.Save();
+                BuildTitleChips();
+            });
+            TitleChips.Children.Add(chip);
+        }
+    }
+
+    private void AddTitle()
+    {
+        string rule = TitleBox.Text.Trim();
+        // Very short text like "a" would match almost every window
+        if (rule.Length < 2) return;
+        if (!_host.Settings.IgnoredTitles.Contains(rule, StringComparer.OrdinalIgnoreCase) && _host.Settings.IgnoredTitles.Count < 200)
+        {
+            _host.Settings.IgnoredTitles = _host.Settings.IgnoredTitles.Append(rule).ToList();
+            _host.Settings.Save();
+        }
+        TitleBox.Clear();
+        BuildTitleChips();
     }
 
     private Button Chip(string text, string glyph, string name)

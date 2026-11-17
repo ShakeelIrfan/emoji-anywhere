@@ -72,10 +72,16 @@ public sealed class Settings
         "WindowsTerminal", "cmd", "powershell", "pwsh", "conhost", "mintty", "putty", "OpenConsole"
     };
 
-    // Apps with their own :shortcode popup (Discord, Slack). Showing ours there too just doubles up,
+    // Windows whose title contains one of these are skipped (case does not matter).
+    // Browsers put the tab title in the window title, so this can skip one site, like Jira, and not the whole browser.
+    public List<string> IgnoredTitles { get; set; } = new();
+
+    // Apps and sites with their own :shortcode popup. Showing ours there too just doubles up,
     // so stay quiet in them unless the person turns this off in the tray panel.
     public bool QuietInShortcodeApps { get; set; } = true;
-    public static readonly string[] ShortcodeApps = { "Discord", "DiscordPTB", "DiscordCanary", "DiscordDevelopment", "slack" };
+    public static readonly string[] ShortcodeApps = { "Discord", "DiscordPTB", "DiscordCanary", "DiscordDevelopment", "slack", "ms-teams", "Teams" };
+    // Matched against one whole part of a browser window title, like "Jira" in "ABC-12 Fix login - Jira - Google Chrome"
+    public static readonly string[] ShortcodeSites = { "Jira", "Slack", "Discord", "Microsoft Teams" };
 
     // Apps that reject typed unicode and need the clipboard paste method
     public List<string> PasteModeApps { get; set; } = new();
@@ -89,6 +95,7 @@ public sealed class Settings
         PopupScale = double.IsFinite(PopupScale) ? Math.Clamp(PopupScale, 0.7, 2.0) : 1.0;
         IgnoredApps = CleanList(IgnoredApps);
         PasteModeApps = CleanList(PasteModeApps);
+        IgnoredTitles = CleanList(IgnoredTitles);
         return this;
     }
 
