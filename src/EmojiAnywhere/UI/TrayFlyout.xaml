@@ -212,7 +212,7 @@
                     <Grid Margin="2,0,0,8">
                         <StackPanel Margin="0,0,52,0">
                             <TextBlock Text="Stay quiet in apps with emoji popups" TextWrapping="Wrap" />
-                            <TextBlock Text="Discord, Slack, Teams and Jira have their own" FontSize="11" Foreground="{DynamicResource Fly.Muted}" />
+                            <TextBlock Text="Discord, Slack, Teams, Jira and Claude have their own" FontSize="11" Foreground="{DynamicResource Fly.Muted}" />
                         </StackPanel>
                         <ToggleButton x:Name="QuietSwitch" Style="{StaticResource Switch}" HorizontalAlignment="Right" VerticalAlignment="Center"
                                       AutomationProperties.Name="Stay quiet in apps with emoji popups" />

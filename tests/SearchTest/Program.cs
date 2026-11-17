@@ -85,7 +85,7 @@ Check("no rules, nothing ignored", !TitleRules.Ignored("Jira", Array.Empty<strin
     Check("snippet: too long abbreviation rejected", !SnippetMatcher.IsValidAbbreviation(new string('a', 33)));
 
     var lib = new SnippetLibrary(new Settings());
-    Check("snippet library: first run adds examples", lib.Snippets.Count == 3 && lib.Matcher.Find("shrug") != null);
+    Check("snippet library: first run adds examples", lib.Snippets.Count == 4 && lib.Matcher.Find("shrug") != null && lib.Matcher.Find("time") != null);
     var mine = new Snippet { Abbreviation = "mail", Body = "me@example.com" };
     lib.Upsert(mine);
     Check("snippet library: new snippet works right away", lib.Matcher.Find("mail")?.Body == "me@example.com");
@@ -93,7 +93,7 @@ Check("no rules, nothing ignored", !TitleRules.Ignored("Jira", Array.Empty<strin
     Check("snippet library: deleted snippet stops right away", lib.Matcher.Find("mail") == null);
     Thread.Sleep(300); // saves happen in the background
     var again = new SnippetLibrary(new Settings());
-    Check("snippet library: changes are saved", again.Matcher.Find("shrug") != null && again.Matcher.Find("mail") == null && again.Snippets.Count == 3);
+    Check("snippet library: changes are saved", again.Matcher.Find("shrug") != null && again.Matcher.Find("mail") == null && again.Snippets.Count == 4);
 }
 
 // Snippet placeholders, forms, search, merge, import and sync

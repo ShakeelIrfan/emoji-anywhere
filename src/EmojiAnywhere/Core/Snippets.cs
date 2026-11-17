@@ -412,6 +412,7 @@ public sealed class SnippetLibrary : IDisposable
             f.Snippets.Add(new Snippet { Abbreviation = "shrug", Label = "Shrug", Body = "¯\\_(ツ)_/¯" });
             f.Snippets.Add(new Snippet { Abbreviation = "ty", Label = "Thank you", Body = "Thank you so much!" });
             f.Snippets.Add(new Snippet { Abbreviation = "today", Label = "Today's date", Body = "{date:d MMMM yyyy}" });
+            f.Snippets.Add(new Snippet { Abbreviation = "time", Label = "Time right now", Body = "{time}" });
             AppPaths.SaveText(LocalFileName, JsonSerializer.Serialize(f, AppPaths.Json));
         }
         return f;

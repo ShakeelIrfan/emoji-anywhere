@@ -82,7 +82,7 @@ public sealed class Settings
     // Apps and sites with their own :shortcode popup. Showing ours there too just doubles up,
     // so stay quiet in them unless the person turns this off in the tray panel.
     public bool QuietInShortcodeApps { get; set; } = true;
-    public static readonly string[] ShortcodeApps = { "Discord", "DiscordPTB", "DiscordCanary", "DiscordDevelopment", "slack", "ms-teams", "Teams" };
+    public static readonly string[] ShortcodeApps = { "Discord", "DiscordPTB", "DiscordCanary", "DiscordDevelopment", "slack", "ms-teams", "Teams", "claude" };
     // Matched against one whole part of a browser window title, like "Jira" in "ABC-12 Fix login - Jira - Google Chrome"
     public static readonly string[] ShortcodeSites = { "Jira", "Slack", "Discord", "Microsoft Teams" };
 

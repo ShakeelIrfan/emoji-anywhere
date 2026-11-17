@@ -45,7 +45,7 @@ Press **Esc** to close the popup and keep typing normally.
 
 ## Why it feels invisible
 
-- **Doesn't double up.** Discord, Slack and Teams (the apps and their web versions) and Jira already have their own `:emoji` popup, so it stays quiet there unless you turn that off.
+- **Doesn't double up.** Discord, Slack and Teams (the apps and their web versions), Jira and the Claude desktop app already have their own `:emoji` popup, so it stays quiet there unless you turn that off.
 - **Skip any site.** Add a site name like `Jira` under Ignored sites and it stays quiet in windows whose title contains it, without turning off the whole browser.
 - **Gets out of your way.** It only triggers when `:` comes after a space or at the start of a line, so `10:30`, `https://` and `C:\` never open it.
 - **Never steals focus.** The popup shows up, you keep typing in your app.
