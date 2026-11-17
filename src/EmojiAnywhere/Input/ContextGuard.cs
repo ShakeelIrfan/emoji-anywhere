@@ -11,18 +11,20 @@ public static class ContextGuard
     private static IntPtr _lastHwnd;
     private static string _lastName = "";
 
-    public static bool ShouldIgnore(IntPtr hwnd, Settings settings)
+    // forSnippets: snippets still work in apps with their own emoji popup (Discord, Slack), so those checks are skipped
+    public static bool ShouldIgnore(IntPtr hwnd, Settings settings, bool forSnippets = false)
     {
         string name = ProcessName(hwnd);
         if (name.Length == 0) return true; // could not read it, likely an admin window
         if (name.Equals("EmojiAnywhere", StringComparison.OrdinalIgnoreCase)) return false;
         if (settings.IgnoredApps.Contains(name, StringComparer.OrdinalIgnoreCase)) return true;
-        if (settings.QuietInShortcodeApps && Settings.ShortcodeApps.Contains(name, StringComparer.OrdinalIgnoreCase)) return true;
-        if (settings.IgnoredTitles.Count > 0 || (settings.QuietInShortcodeApps && TitleRules.Browsers.Contains(name, StringComparer.OrdinalIgnoreCase)))
+        bool quiet = settings.QuietInShortcodeApps && !forSnippets;
+        if (quiet && Settings.ShortcodeApps.Contains(name, StringComparer.OrdinalIgnoreCase)) return true;
+        if (settings.IgnoredTitles.Count > 0 || (quiet && TitleRules.Browsers.Contains(name, StringComparer.OrdinalIgnoreCase)))
         {
             string title = WindowTitle(hwnd);
             if (TitleRules.Ignored(title, settings.IgnoredTitles)) return true;
-            if (settings.QuietInShortcodeApps && TitleRules.Browsers.Contains(name, StringComparer.OrdinalIgnoreCase) && TitleRules.IsShortcodeSite(title)) return true;
+            if (quiet && TitleRules.Browsers.Contains(name, StringComparer.OrdinalIgnoreCase) && TitleRules.IsShortcodeSite(title)) return true;
         }
         return IsPasswordField();
     }

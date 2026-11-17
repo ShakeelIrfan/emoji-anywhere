@@ -57,6 +57,45 @@ Check("title rule matches any case", TitleRules.Ignored("Board - JIRA - Google C
 Check("title rule needs a match", !TitleRules.Ignored("YouTube - Google Chrome", new[] { "jira" }));
 Check("no rules, nothing ignored", !TitleRules.Ignored("Jira", Array.Empty<string>()));
 
+// Snippets
+{
+    var folderOff = new SnippetFolder { Name = "Off", Enabled = false };
+    var list = new List<Snippet>
+    {
+        new() { Abbreviation = "addr", Body = "123 Example Street" },
+        new() { Abbreviation = "ad", Body = "short" },
+        new() { Abbreviation = "ty", Body = "Thank you" },
+        new() { Abbreviation = "gone", Body = "x", Deleted = true },
+        new() { Abbreviation = "pop", Body = "x", PopupOnly = true },
+        new() { Abbreviation = "hid", Body = "x", FolderId = folderOff.Id },
+        new() { Abbreviation = "bad word", Body = "x" },
+        new() { Abbreviation = "TY", Body = "duplicate" },
+    };
+    var m = new SnippetMatcher(list, new[] { folderOff });
+    Check("snippet: exact match", m.Find("addr")?.Body == "123 Example Street");
+    Check("snippet: case does not matter", m.Find("ADDR")?.Body == "123 Example Street");
+    Check("snippet: first of two duplicates wins", m.Find("ty")?.Body == "Thank you");
+    Check("snippet: ;ad waits because ;addr exists", m.Find("ad") != null && m.HasLonger("ad"));
+    Check("snippet: ;addr has nothing longer", !m.HasLonger("addr"));
+    Check("snippet: ;a could still match", m.CouldMatch("a") && !m.CouldMatch("ax"));
+    Check("snippet: deleted ones never expand", m.Find("gone") == null);
+    Check("snippet: popup only ones never auto expand", m.Find("pop") == null);
+    Check("snippet: turned off folder never expands", m.Find("hid") == null);
+    Check("snippet: abbreviation with a space is rejected", m.Find("bad word") == null && !SnippetMatcher.IsValidAbbreviation("bad word"));
+    Check("snippet: too long abbreviation rejected", !SnippetMatcher.IsValidAbbreviation(new string('a', 33)));
+
+    var lib = new SnippetLibrary();
+    Check("snippet library: first run adds examples", lib.Snippets.Count == 3 && lib.Matcher.Find("shrug") != null);
+    var mine = new Snippet { Abbreviation = "mail", Body = "me@example.com" };
+    lib.Upsert(mine);
+    Check("snippet library: new snippet works right away", lib.Matcher.Find("mail")?.Body == "me@example.com");
+    lib.Delete(mine.Id);
+    Check("snippet library: deleted snippet stops right away", lib.Matcher.Find("mail") == null);
+    Thread.Sleep(300); // saves happen in the background
+    var again = new SnippetLibrary();
+    Check("snippet library: changes are saved", again.Matcher.Find("shrug") != null && again.Matcher.Find("mail") == null && again.Snippets.Count == 3);
+}
+
 try { Directory.Delete(data, true); } catch { }
 Console.WriteLine($"RESULT pass={pass} fail={fail}");
 return fail == 0 ? 0 : 1;

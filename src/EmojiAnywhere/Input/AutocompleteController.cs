@@ -14,6 +14,7 @@ namespace EmojiAnywhere.Input;
 public sealed class AutocompleteController
 {
     private readonly EmojiIndex _index;
+    private readonly SnippetLibrary _snippets;
     private readonly UsageStore _usage;
     private readonly Settings _settings;
     private readonly SuggestionPopup _popup;
@@ -30,14 +31,18 @@ public sealed class AutocompleteController
     private int _selected;
     private int _session;                 // bumps on every reset, so late UI work can tell it is stale
 
+    // Snippets: the trigger (";" by default) at a boundary starts collecting an abbreviation like "addr"
+    private bool _snip;
+    private string _abbr = "";
+
     public bool Paused { get; set; }
 
     // The last window you typed in, so the tray menu can offer "Ignore this app"
     public IntPtr LastTypedWindow => _lastForeground;
 
-    public AutocompleteController(EmojiIndex index, UsageStore usage, Settings settings, SuggestionPopup popup)
+    public AutocompleteController(EmojiIndex index, UsageStore usage, Settings settings, SuggestionPopup popup, SnippetLibrary snippets)
     {
-        _index = index; _usage = usage; _settings = settings; _popup = popup;
+        _index = index; _usage = usage; _settings = settings; _popup = popup; _snippets = snippets;
         _ui = Dispatcher.CurrentDispatcher;
         _popup.ItemClicked += i =>
         {
@@ -74,8 +79,22 @@ public sealed class AutocompleteController
 
             if (_collecting && _open && HandlePopupKey(k)) return true;
 
+            if (_snip) return OnSnippetKey(k);
+
             if (!_collecting)
             {
+                if (_settings.SnippetsEnabled && k.Char == _settings.SnippetTrigger && _atBoundary && _snippets.Matcher.Count > 0)
+                {
+                    _snip = true; _abbr = ""; _window = fg;
+                    _atBoundary = false;
+                    int session = _session;
+                    _ui.BeginInvoke(() =>
+                    {
+                        if (!ContextGuard.ShouldIgnore(fg, _settings, forSnippets: true)) return;
+                        lock (_gate) { if (_session == session) ResetLocked(); }
+                    });
+                    return false;
+                }
                 if (k.Char == ':' && _atBoundary)
                 {
                     _collecting = true; _query = ""; _window = fg;
@@ -124,6 +143,72 @@ public sealed class AutocompleteController
             TrackBoundary(k);
             return false;
         }
+    }
+
+    // Collecting a snippet abbreviation. Returns true to swallow the key.
+    private bool OnSnippetKey(KeyPress k)
+    {
+        var matcher = _snippets.Matcher;
+
+        if (k.Vk == Win32.VK_BACK)
+        {
+            if (_abbr.Length == 0) { ResetLocked(); _atBoundary = true; return false; }
+            _abbr = _abbr[..^1];
+            return false;
+        }
+
+        if (k.Char is char c && SnippetMatcher.IsAbbreviationChar(c))
+        {
+            string next = _abbr + c;
+            // A unique full match expands right away. This key is swallowed, so the app only saw
+            // the trigger and the letters before it.
+            if (Usable(matcher.Find(next)) is Snippet now && !matcher.HasLonger(next))
+            {
+                Expand(now, deleteCount: 1 + _abbr.Length, after: "", enterAfter: false);
+                return true;
+            }
+            if (next.Length > SnippetMatcher.MaxAbbreviation) { ResetLocked(); _atBoundary = false; return false; }
+            // Keep following even when nothing matches yet, so fixing a typo with Backspace still works
+            _abbr = next;
+            return false;
+        }
+
+        if (IsModifier(k.Vk)) return false;
+
+        // A space, Enter, Tab or punctuation ends it. If what was typed is a snippet (one that waited because
+        // a longer one starts the same way), expand it and keep the key that ended it.
+        bool enter = k.Vk == Win32.VK_RETURN;
+        if (_abbr.Length > 0 && (enter || k.Char != null) && Usable(matcher.Find(_abbr)) is Snippet s)
+        {
+            string after = !enter && k.Char is char ch ? ch.ToString() : "";
+            Expand(s, deleteCount: 1 + _abbr.Length, after, enterAfter: enter);
+            return true;
+        }
+
+        ResetLocked();
+        TrackBoundary(k);
+        return false;
+    }
+
+    // A snippet limited to certain apps only counts in those apps
+    private Snippet? Usable(Snippet? s)
+    {
+        if (s?.Apps is not { Count: > 0 } apps) return s;
+        return apps.Contains(ContextGuard.ProcessName(_window), StringComparer.OrdinalIgnoreCase) ? s : null;
+    }
+
+    private void Expand(Snippet s, int deleteCount, string after, bool enterAfter)
+    {
+        string body = s.Body;
+        // Long or multi line text goes in through the clipboard: typing it would be slow, and typing a new line
+        // presses Enter, which sends the message in chat apps
+        bool paste = body.Contains('\n') || body.Length > 300
+            || _settings.PasteModeApps.Contains(ContextGuard.ProcessName(_window), StringComparer.OrdinalIgnoreCase);
+        ResetLocked();
+        _atBoundary = after.Length > 0 || enterAfter;
+
+        if (paste) _ui.BeginInvoke(() => TextInjector.Replace(deleteCount, body, usePaste: true, after, enterAfter));
+        else Task.Run(() => TextInjector.Replace(deleteCount, body, usePaste: false, after, enterAfter));
     }
 
     private bool HandlePopupKey(KeyPress k)
@@ -214,6 +299,8 @@ public sealed class AutocompleteController
         bool wasOpen = _open;
         _collecting = false;
         _query = "";
+        _snip = false;
+        _abbr = "";
         _results = new List<EmojiEntry>();
         _open = false;
         _selected = 0;

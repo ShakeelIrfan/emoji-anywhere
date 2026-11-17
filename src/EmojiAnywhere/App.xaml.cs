@@ -42,7 +42,8 @@ public partial class App : Application
         var usage = new UsageStore();
         var index = new EmojiIndex(usage);
         var popup = new SuggestionPopup();
-        var controller = new AutocompleteController(index, usage, settings, popup);
+        var snippets = new SnippetLibrary();
+        var controller = new AutocompleteController(index, usage, settings, popup, snippets);
 
         try
         {

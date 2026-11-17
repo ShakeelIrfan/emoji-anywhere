@@ -50,6 +50,8 @@ static class Program
         Directory.CreateDirectory(Path.Combine(appData, "EmojiAnywhere"));
         if (mode == "paste")
             File.WriteAllText(Path.Combine(appData, "EmojiAnywhere", "settings.json"), "{\"PasteModeApps\":[\"" + Process.GetCurrentProcess().ProcessName + "\"]}");
+        if (mode == "snippets")
+            File.WriteAllText(Path.Combine(appData, "EmojiAnywhere", "snippets.json"), SnippetFile);
 
         // A copy that is already running would make the test copy show its "already running" notice instead
         if (Process.GetProcessesByName("EmojiAnywhere").Length > 0) { Log("FAIL: quit the running Emoji Anywhere first"); fail++; return; }
@@ -66,6 +68,7 @@ static class Program
         if (!await Focus(box)) return;
 
         if (mode == "paste") { await PasteTests(); return; }
+        if (mode == "snippets") { await SnippetTests(); return; }
 
         await Case("full code", box, "hi :fire: ", "hi 🔥 ");
         await Case("enter picks first", box, ":sob{ENTER}", "😭");
@@ -369,6 +372,45 @@ static class Program
     [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern int GetWindowText(IntPtr h, StringBuilder s, int max);
     [DllImport("user32.dll")] static extern bool PostMessage(IntPtr h, uint msg, IntPtr w, IntPtr l);
     [DllImport("user32.dll")] static extern bool GetCursorPos(out POINT p);
+
+    const string SnippetFile = """
+    {
+      "Version": 1,
+      "Folders": [],
+      "Snippets": [
+        { "Id": "1", "Abbreviation": "ty", "Body": "Thank you so much!" },
+        { "Id": "2", "Abbreviation": "addr", "Body": "123 Example Street" },
+        { "Id": "3", "Abbreviation": "ad", "Body": "AD" },
+        { "Id": "4", "Abbreviation": "multi", "Body": "Line one\nLine two" },
+        { "Id": "5", "Abbreviation": "shrug", "Body": "\u00af\\_(\u30c4)_/\u00af" }
+      ]
+    }
+    """;
+
+    // Snippets: ";abbr" turns into saved text. Only types into this test window.
+    static async Task SnippetTests()
+    {
+        await Case("snippet expands", box, "hi ;ty", "hi Thank you so much!");
+        await Case("snippet then keep typing", box, ";ty ok", "Thank you so much! ok");
+        await Case("longer snippet", box, ";addr", "123 Example Street");
+        await Case("short one waits, space ends it", box, ";ad x", "AD x");
+        await Case("short one waits, comma ends it", box, ";ad,", "AD,");
+        await Case("short one waits, enter ends it", box, ";ad{ENTER}", "AD\r\n");
+        await Case("backspace while typing", box, ";tx{BACK}y", "Thank you so much!");
+        await Case("mid word not triggered", box, "x;ty", "x;ty");
+        await Case("unknown abbreviation untouched", box, ";nope ok", ";nope ok");
+        await Case("semicolon in normal text", box, "a; b; c", "a; b; c");
+        await Case("special characters", box, ";shrug", "\u00af\\_(\u30c4)_/\u00af");
+        Clipboard.SetText("keep me");
+        await Case("multi line goes in by paste", box, ";multi", "Line one\r\nLine two");
+        await Task.Delay(800);
+        string clip = Clipboard.ContainsText() ? Clipboard.GetText() : "(empty)";
+        Check("clipboard restored after a snippet", clip == "keep me", $"clipboard='{clip}'");
+        await Case("emoji still works", box, ":fire:", "\U0001F525");
+
+        if (!await Focus(pwd)) return;
+        await Case("password field ignored", pwd, ";ty", ";ty");
+    }
 
     static async Task PasteTests()
     {

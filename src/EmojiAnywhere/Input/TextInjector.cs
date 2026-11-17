@@ -5,23 +5,29 @@ using EmojiAnywhere.Native;
 
 namespace EmojiAnywhere.Input;
 
-// Deletes the ":query" and puts the emoji in its place.
+// Deletes the ":query" (or ";abbr") and puts the emoji or snippet text in its place.
+// "after" is typed once the text is in (the space or comma that ended a snippet); enterAfter presses Enter.
 public static class TextInjector
 {
-    public static void Replace(int backspaces, string emoji, bool usePaste)
+    public static void Replace(int backspaces, string text, bool usePaste, string after = "", bool enterAfter = false)
     {
         var inputs = new List<Win32.INPUT>();
         for (int i = 0; i < backspaces; i++) AddKey(inputs, Win32.VK_BACK);
 
         if (!usePaste)
         {
-            foreach (char ch in emoji) AddUnicode(inputs, ch);
+            foreach (char ch in text + after) AddUnicode(inputs, ch);
+            if (enterAfter) AddKey(inputs, Win32.VK_RETURN);
             Send(inputs);
             return;
         }
 
         Send(inputs);
-        PasteAndRestore(emoji);
+        PasteAndRestore(text.ReplaceLineEndings("\r\n"));
+        var tail = new List<Win32.INPUT>();
+        foreach (char ch in after) AddUnicode(tail, ch);
+        if (enterAfter) AddKey(tail, Win32.VK_RETURN);
+        Send(tail);
     }
 
     private static void PasteAndRestore(string emoji)

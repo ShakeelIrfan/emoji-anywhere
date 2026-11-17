@@ -46,12 +46,15 @@ internal static class AppPaths
         return new T();
     }
 
-    public static void Save<T>(string file, T value)
+    public static void Save<T>(string file, T value) => SaveText(file, JsonSerializer.Serialize(value, Json));
+
+    // Writes to a temp file first, so a crash mid write never leaves a half written file
+    public static void SaveText(string file, string text)
     {
         try
         {
             string path = Path.Combine(Folder, file);
-            File.WriteAllText(path + ".tmp", JsonSerializer.Serialize(value, Json));
+            File.WriteAllText(path + ".tmp", text);
             File.Move(path + ".tmp", path, overwrite: true);
         }
         catch { }
@@ -83,6 +86,10 @@ public sealed class Settings
     // Matched against one whole part of a browser window title, like "Jira" in "ABC-12 Fix login - Jira - Google Chrome"
     public static readonly string[] ShortcodeSites = { "Jira", "Slack", "Discord", "Microsoft Teams" };
 
+    // Snippets: type the trigger plus an abbreviation, like ";addr", to insert saved text
+    public bool SnippetsEnabled { get; set; } = true;
+    public char SnippetTrigger { get; set; } = ';';
+
     // Apps that reject typed unicode and need the clipboard paste method
     public List<string> PasteModeApps { get; set; } = new();
 
@@ -96,6 +103,8 @@ public sealed class Settings
         IgnoredApps = CleanList(IgnoredApps);
         PasteModeApps = CleanList(PasteModeApps);
         IgnoredTitles = CleanList(IgnoredTitles);
+        // The trigger must be a symbol you can type, never a letter, digit, space or the emoji colon
+        if (char.IsLetterOrDigit(SnippetTrigger) || char.IsWhiteSpace(SnippetTrigger) || char.IsControl(SnippetTrigger) || SnippetTrigger == ':') SnippetTrigger = ';';
         return this;
     }
 
