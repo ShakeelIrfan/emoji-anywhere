@@ -9,7 +9,8 @@ namespace EmojiAnywhere.Input;
 // "after" is typed once the text is in (the space or comma that ended a snippet); enterAfter presses Enter.
 public static class TextInjector
 {
-    public static void Replace(int backspaces, string text, bool usePaste, string after = "", bool enterAfter = false)
+    // leftAfter: press Left this many times at the end, to put the cursor where a snippet's {cursor} was
+    public static void Replace(int backspaces, string text, bool usePaste, string after = "", bool enterAfter = false, int leftAfter = 0)
     {
         var inputs = new List<Win32.INPUT>();
         for (int i = 0; i < backspaces; i++) AddKey(inputs, Win32.VK_BACK);
@@ -17,20 +18,50 @@ public static class TextInjector
         if (!usePaste)
         {
             foreach (char ch in text + after) AddUnicode(inputs, ch);
-            if (enterAfter) AddKey(inputs, Win32.VK_RETURN);
+            AddTail(inputs, "", enterAfter, leftAfter);
             Send(inputs);
             return;
         }
 
         Send(inputs);
-        PasteAndRestore(text.ReplaceLineEndings("\r\n"));
+        PasteAndRestore(new DataObject(DataFormats.UnicodeText, text.ReplaceLineEndings("\r\n")));
         var tail = new List<Win32.INPUT>();
-        foreach (char ch in after) AddUnicode(tail, ch);
-        if (enterAfter) AddKey(tail, Win32.VK_RETURN);
+        AddTail(tail, after, enterAfter, leftAfter);
         Send(tail);
     }
 
-    private static void PasteAndRestore(string emoji)
+    // Formatted text (bold, links, lists): pasted as HTML for browsers, RTF for Word, and plain text for the rest
+    public static void ReplaceRich(int backspaces, string plain, string? html, string? rtf, string after, bool enterAfter, int leftAfter)
+    {
+        var inputs = new List<Win32.INPUT>();
+        for (int i = 0; i < backspaces; i++) AddKey(inputs, Win32.VK_BACK);
+        Send(inputs);
+        var data = new DataObject();
+        data.SetData(DataFormats.UnicodeText, plain.ReplaceLineEndings("\r\n"));
+        if (html != null) data.SetData(DataFormats.Html, Core.SnippetText.ClipboardHtml(html));
+        if (rtf != null) data.SetData(DataFormats.Rtf, rtf);
+        PasteAndRestore(data);
+        var tail = new List<Win32.INPUT>();
+        AddTail(tail, after, enterAfter, leftAfter);
+        Send(tail);
+    }
+
+    // Types text back, for example a key we held back when a fill in form was cancelled
+    public static void Type(string text)
+    {
+        var inputs = new List<Win32.INPUT>();
+        foreach (char ch in text) AddUnicode(inputs, ch);
+        Send(inputs);
+    }
+
+    private static void AddTail(List<Win32.INPUT> list, string after, bool enterAfter, int leftAfter)
+    {
+        foreach (char ch in after) AddUnicode(list, ch);
+        if (enterAfter) AddKey(list, Win32.VK_RETURN);
+        for (int i = 0; i < Math.Min(leftAfter, 5000); i++) AddKey(list, Win32.VK_LEFT);
+    }
+
+    private static void PasteAndRestore(DataObject temp)
     {
         // Take a real copy of what is on the clipboard. GetDataObject alone is only a live
         // view of the clipboard, so it would show the emoji by the time we restore it.
@@ -53,7 +84,6 @@ public static class TextInjector
         // Windows clipboard history or cloud clipboard. This also keeps a copied password private:
         // password managers mark them this way, and the marks could otherwise be lost on restore.
         if (saved != null) MarkPrivate(saved);
-        var temp = new DataObject(DataFormats.UnicodeText, emoji);
         MarkPrivate(temp);
         try { Clipboard.SetDataObject(temp, true); } catch { return; }
         uint ourSequence = GetClipboardSequenceNumber();

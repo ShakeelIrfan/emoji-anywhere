@@ -42,7 +42,7 @@ public partial class App : Application
         var usage = new UsageStore();
         var index = new EmojiIndex(usage);
         var popup = new SuggestionPopup();
-        var snippets = new SnippetLibrary();
+        var snippets = new SnippetLibrary(settings);
         var controller = new AutocompleteController(index, usage, settings, popup, snippets);
 
         try
@@ -57,7 +57,7 @@ public partial class App : Application
             Shutdown();
             return;
         }
-        _tray = new TrayHost(settings, controller, Shutdown);
+        _tray = new TrayHost(settings, controller, Shutdown, snippets);
 
         // Keep the "start with Windows" entry pointing at this exe, even if it was moved.
         // Skipped for a custom data folder (portable copies and tests should never register).

@@ -382,7 +382,11 @@ static class Program
         { "Id": "2", "Abbreviation": "addr", "Body": "123 Example Street" },
         { "Id": "3", "Abbreviation": "ad", "Body": "AD" },
         { "Id": "4", "Abbreviation": "multi", "Body": "Line one\nLine two" },
-        { "Id": "5", "Abbreviation": "shrug", "Body": "\u00af\\_(\u30c4)_/\u00af" }
+        { "Id": "5", "Abbreviation": "shrug", "Body": "\u00af\\_(\u30c4)_/\u00af" },
+        { "Id": "6", "Abbreviation": "yr", "Body": "Year {date:yyyy}" },
+        { "Id": "7", "Abbreviation": "wrap", "Body": "({cursor})" },
+        { "Id": "8", "Abbreviation": "nest", "Body": "A {snippet:ty}" },
+        { "Id": "9", "Abbreviation": "hidden", "Body": "Popup only text", "PopupOnly": true }
       ]
     }
     """;
@@ -395,7 +399,9 @@ static class Program
         await Case("longer snippet", box, ";addr", "123 Example Street");
         await Case("short one waits, space ends it", box, ";ad x", "AD x");
         await Case("short one waits, comma ends it", box, ";ad,", "AD,");
-        await Case("short one waits, enter ends it", box, ";ad{ENTER}", "AD\r\n");
+        await Case("enter picks the top match from the popup", box, ";ad{ENTER}", "AD");
+        await Case("arrow down picks the next match", box, ";ad{DOWN}{ENTER}", "123 Example Street");
+        await Case("esc closes the popup and keeps the text", box, ";ad{ESC} x", ";ad x");
         await Case("backspace while typing", box, ";tx{BACK}y", "Thank you so much!");
         await Case("mid word not triggered", box, "x;ty", "x;ty");
         await Case("unknown abbreviation untouched", box, ";nope ok", ";nope ok");
@@ -407,6 +413,11 @@ static class Program
         string clip = Clipboard.ContainsText() ? Clipboard.GetText() : "(empty)";
         Check("clipboard restored after a snippet", clip == "keep me", $"clipboard='{clip}'");
         await Case("emoji still works", box, ":fire:", "\U0001F525");
+        await Case("date fills in", box, ";yr", "Year " + DateTime.Now.Year);
+        await Case("cursor ends up inside", box, ";wrapx", "(x)");
+        await Case("snippet inside a snippet", box, ";nest", "A Thank you so much!");
+        await Case("popup only: never on its own", box, ";hidden ok", ";hidden ok");
+        await Case("popup only: picked from the popup", box, ";hid{ENTER}", "Popup only text");
 
         if (!await Focus(pwd)) return;
         await Case("password field ignored", pwd, ";ty", ";ty");

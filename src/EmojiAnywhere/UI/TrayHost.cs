@@ -11,6 +11,7 @@ public sealed class TrayHost : IDisposable, ITrayActions
 {
     private readonly Forms.NotifyIcon _icon;
     private readonly AutocompleteController _controller;
+    private readonly SnippetLibrary _snippets;
     private readonly Action _quit;
     private readonly System.Windows.Threading.DispatcherTimer _pauseTimer = new() { Interval = TimeSpan.FromHours(1) };
     private TrayFlyout? _flyout;
@@ -28,10 +29,11 @@ public sealed class TrayHost : IDisposable, ITrayActions
         }
     }
 
-    public TrayHost(Settings settings, AutocompleteController controller, Action quit)
+    public TrayHost(Settings settings, AutocompleteController controller, Action quit, SnippetLibrary snippets)
     {
         Settings = settings;
         _controller = controller;
+        _snippets = snippets;
         _quit = quit;
 
         _icon = new Forms.NotifyIcon { Icon = MakeIcon(), Visible = true };
@@ -79,6 +81,8 @@ public sealed class TrayHost : IDisposable, ITrayActions
     }
 
     public void Quit() => _quit();
+
+    public void OpenSnippets() => SnippetEditor.Open(_snippets, Settings);
 
     public void ShowWelcome() =>
         _icon.ShowBalloonTip(6000, "Emoji Anywhere is running",

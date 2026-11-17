@@ -29,6 +29,8 @@ class Program
         public void SetStartup(bool on) { StartupSetTo = on; }
         public void OpenSource() { SourceOpened = true; }
         public void Quit() { Quitted = true; }
+        public bool SnippetsOpened;
+        public void OpenSnippets() { SnippetsOpened = true; }
     }
 
     static void Pump(int ms)
@@ -49,6 +51,88 @@ class Program
             if (Find(c, match) is T found) return found;
         }
         return null;
+    }
+
+    // The snippet editor, driven through its controls (no keyboard or mouse)
+    static void EditorTests(Action<string, bool> Check)
+    {
+        // Formatting turns into HTML other apps understand
+        var doc = new System.Windows.Documents.FlowDocument();
+        var p = new System.Windows.Documents.Paragraph();
+        p.Inlines.Add(new System.Windows.Documents.Run("Hi "));
+        p.Inlines.Add(new System.Windows.Documents.Bold(new System.Windows.Documents.Run("you")));
+        p.Inlines.Add(new System.Windows.Documents.Run(" & "));
+        p.Inlines.Add(new System.Windows.Documents.Hyperlink(new System.Windows.Documents.Run("site")) { NavigateUri = new Uri("https://example.com") });
+        p.Inlines.Add(new System.Windows.Documents.Hyperlink(new System.Windows.Documents.Run("bad")) { NavigateUri = new Uri("javascript:alert(1)") });
+        doc.Blocks.Add(p);
+        var list = new System.Windows.Documents.List();
+        list.ListItems.Add(new System.Windows.Documents.ListItem(new System.Windows.Documents.Paragraph(new System.Windows.Documents.Run("one"))));
+        doc.Blocks.Add(list);
+        string html = RichTextConvert.Html(doc);
+        if (Environment.GetEnvironmentVariable("SHOW_HTML") != null) Console.WriteLine("HTML: " + html);
+        Check("rich: bold, link and list become HTML", html.Contains("<b>you</b>") && html.Contains("<a href=\"https://example.com/\">site</a>") && html.Contains("<ul><li>one</li></ul>") && html.Contains("&amp;"));
+        Check("rich: unsafe links are dropped", !html.Contains("javascript"));
+        Check("rich: formatting detected", RichTextConvert.HasFormatting(doc));
+        var plainDoc = new System.Windows.Documents.FlowDocument();
+        RichTextConvert.LoadPlain(plainDoc, "a\nb");
+        Check("rich: plain text stays plain", !RichTextConvert.HasFormatting(plainDoc) && RichTextConvert.Plain(plainDoc) == "a\nb");
+        Check("rich: RTF round trip", RichTextConvert.Rtf(doc).StartsWith("{\\rtf"));
+
+        Environment.SetEnvironmentVariable("EMOJIANYWHERE_DATA", System.IO.Path.Combine(Out, "editor-data"));
+        var settings = new Settings();
+        var lib = new SnippetLibrary(settings);
+        var ed = SnippetEditor.Open(lib, settings);
+        ed.Left = -32000; ed.Top = -32000;
+        Pump(500);
+
+        System.Windows.Controls.Button Btn(string text) => Find<System.Windows.Controls.Button>(ed, b => b.Content as string == text)!;
+        System.Windows.Controls.TextBox Box(string name) => Find<System.Windows.Controls.TextBox>(ed, t => Name(t) == name)!;
+        var body = Find<System.Windows.Controls.RichTextBox>(ed, r => Name(r) == "Text to insert")!;
+        bool ErrorShown(string part) => Find<System.Windows.Controls.TextBlock>(ed, t => t.IsVisible && t.Text.Contains(part)) != null;
+
+        Check("editor: opens with the example snippets listed", Find<System.Windows.Controls.ListBox>(ed, l => Name(l) == "Snippets")!.Items.Count >= 3);
+
+        Invoke(Btn("New snippet"));
+        Box("Short code").Text = "addr";
+        Box("Name").Text = "Address";
+        RichTextConvert.LoadPlain(body.Document, "123 Example Street\nSpringfield");
+        Invoke(Btn("Save"));
+        Check("editor: new snippet saved", lib.Matcher.Find("addr")?.Body == "123 Example Street\nSpringfield" && lib.Matcher.Find("addr")?.Label == "Address");
+
+        Invoke(Btn("New snippet"));
+        Box("Short code").Text = "bad code";
+        RichTextConvert.LoadPlain(body.Document, "x");
+        Invoke(Btn("Save"));
+        Check("editor: bad short code is explained, not saved", ErrorShown("no spaces") && lib.Matcher.Find("bad") == null);
+        Box("Short code").Text = "addr";
+        Invoke(Btn("Save"));
+        Check("editor: duplicate short code is refused", ErrorShown("already uses") && lib.Snippets.Count(x => x.Abbreviation == "addr") == 1);
+        Box("Short code").Text = "hi";
+        body.Document.Blocks.Clear();
+        Invoke(Btn("Save"));
+        Check("editor: empty text is refused", ErrorShown("Add the text"));
+        body.Document.Blocks.Add(new System.Windows.Documents.Paragraph(new System.Windows.Documents.Bold(new System.Windows.Documents.Run("Hello"))));
+        Invoke(Btn("Save"));
+        var hi = lib.Snippets.FirstOrDefault(x => x.Abbreviation == "hi");
+        Check("editor: formatted snippet saved as rich", hi != null && hi.IsRich && (hi.Html ?? "").Contains("<b>Hello</b>") && hi.Body == "Hello");
+
+        // Optional picture of the editor for a visual check: set EDITOR_SHOT to a .png path
+        if (Environment.GetEnvironmentVariable("EDITOR_SHOT") is { Length: > 0 } shot)
+        {
+            var root = (System.Windows.Controls.Panel)ed.Content;
+            root.Background = ed.Background;
+            root.UpdateLayout();
+            var bmp = new System.Windows.Media.Imaging.RenderTargetBitmap((int)root.ActualWidth, (int)root.ActualHeight, 96, 96, PixelFormats.Pbgra32);
+            bmp.Render(root);
+            var png = new System.Windows.Media.Imaging.PngBitmapEncoder();
+            png.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(bmp));
+            using var fs = File.Create(shot);
+            png.Save(fs);
+        }
+
+        ed.Close();
+        Pump(200);
+        lib.Dispose();
     }
 
     static void Invoke(System.Windows.Controls.Primitives.ButtonBase b)
@@ -130,6 +214,13 @@ class Program
         var saved = File.ReadAllText(System.IO.Path.Combine(Out, "flyout-data", "settings.json"));
         Check("changes are saved to the settings file", saved.Contains("\"MaxResults\": 8") && saved.Contains("Discord") && saved.Contains("Jira"));
 
+        var snipSwitch = Find<System.Windows.Controls.Primitives.ToggleButton>(f, t => Name(t) == "Snippets on or off")!;
+        Check("snippets switch is on by default", snipSwitch.IsChecked == true && host.Settings.SnippetsEnabled);
+        Invoke(snipSwitch);
+        Check("snippets can be turned off", !host.Settings.SnippetsEnabled);
+        Invoke(snipSwitch);
+        Check("snippets back on", host.Settings.SnippetsEnabled);
+
         // Optional picture of the panel for a visual check: set FLYOUT_SHOT to a .png path
         if (Environment.GetEnvironmentVariable("FLYOUT_SHOT") is { Length: > 0 } shot)
         {
@@ -144,6 +235,13 @@ class Program
 
         Invoke(((System.Windows.Controls.Button)f.FindName("QuitButton")));
         Check("quit closes the panel and quits", host.Quitted && f.IsClosing);
+        // "Edit snippets" closes the panel and opens the editor
+        var f2 = new TrayFlyout(host, -30000) { Left = -32000, Top = -32000, ShowActivated = false };
+        f2.Show(); Pump(300);
+        Invoke(Find<System.Windows.Controls.Button>(f2, b => Name(b) == "Edit snippets")!);
+        Check("edit snippets opens the editor", host.SnippetsOpened && f2.IsClosing);
+
+        EditorTests(Check);
         Console.WriteLine($"RESULT pass={pass} fail={fail}");
         return fail == 0 ? 0 : 1;
     }

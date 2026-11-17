@@ -172,6 +172,22 @@
                         </StackPanel>
                     </Button>
 
+                    <Grid Margin="2,0,0,4">
+                        <StackPanel Margin="0,0,52,0">
+                            <TextBlock Text="Snippets" />
+                            <TextBlock x:Name="SnippetsHint" FontSize="11" Foreground="{DynamicResource Fly.Muted}" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <ToggleButton x:Name="SnippetsSwitch" Style="{StaticResource Switch}" HorizontalAlignment="Right" VerticalAlignment="Center"
+                                      AutomationProperties.Name="Snippets on or off" />
+                    </Grid>
+                    <Button x:Name="SnippetsButton" Style="{StaticResource Plain}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Margin="-6,0,-6,10"
+                            AutomationProperties.Name="Edit snippets">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE70F;" FontFamily="{DynamicResource Fly.Icons}" FontSize="14" VerticalAlignment="Center" Margin="0,0,10,0" />
+                            <TextBlock Text="Edit snippets" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
                     <TextBlock Text="Results shown" Style="{StaticResource Label}" />
                     <UniformGrid x:Name="ResultsRow" Rows="1" Margin="0,0,0,12" />
 

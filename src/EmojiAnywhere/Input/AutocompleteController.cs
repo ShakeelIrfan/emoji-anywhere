@@ -34,6 +34,7 @@ public sealed class AutocompleteController
     // Snippets: the trigger (";" by default) at a boundary starts collecting an abbreviation like "addr"
     private bool _snip;
     private string _abbr = "";
+    private List<Snippet> _snipResults = new(); // shown in the popup while typing ";ab"
 
     public bool Paused { get; set; }
 
@@ -46,7 +47,11 @@ public sealed class AutocompleteController
         _ui = Dispatcher.CurrentDispatcher;
         _popup.ItemClicked += i =>
         {
-            lock (_gate) { if (_open && i < _results.Count) Commit(_results[i]); }
+            lock (_gate)
+            {
+                if (_snip && _open && i < _snipResults.Count) Expand(_snipResults[i], 1 + _abbr.Length, "", false, swallowed: "");
+                else if (_open && i < _results.Count) Commit(_results[i]);
+            }
         };
     }
 
@@ -150,10 +155,27 @@ public sealed class AutocompleteController
     {
         var matcher = _snippets.Matcher;
 
+        // The popup is open: arrows move, Enter or Tab picks, Esc closes
+        if (_open && _snipResults.Count > 0)
+        {
+            switch (k.Vk)
+            {
+                case Win32.VK_DOWN: Select((_selected + 1) % _snipResults.Count); return true;
+                case Win32.VK_UP: Select((_selected - 1 + _snipResults.Count) % _snipResults.Count); return true;
+                case Win32.VK_RETURN:
+                case Win32.VK_TAB:
+                    Expand(_snipResults[_selected], 1 + _abbr.Length, "", false, swallowed: "");
+                    return true;
+                case Win32.VK_ESCAPE:
+                    ResetLocked(); return true;
+            }
+        }
+
         if (k.Vk == Win32.VK_BACK)
         {
             if (_abbr.Length == 0) { ResetLocked(); _atBoundary = true; return false; }
             _abbr = _abbr[..^1];
+            UpdateSnippetResults();
             return false;
         }
 
@@ -164,12 +186,13 @@ public sealed class AutocompleteController
             // the trigger and the letters before it.
             if (Usable(matcher.Find(next)) is Snippet now && !matcher.HasLonger(next))
             {
-                Expand(now, deleteCount: 1 + _abbr.Length, after: "", enterAfter: false);
+                Expand(now, deleteCount: 1 + _abbr.Length, after: "", enterAfter: false, swallowed: c.ToString());
                 return true;
             }
             if (next.Length > SnippetMatcher.MaxAbbreviation) { ResetLocked(); _atBoundary = false; return false; }
             // Keep following even when nothing matches yet, so fixing a typo with Backspace still works
             _abbr = next;
+            UpdateSnippetResults();
             return false;
         }
 
@@ -181,7 +204,7 @@ public sealed class AutocompleteController
         if (_abbr.Length > 0 && (enter || k.Char != null) && Usable(matcher.Find(_abbr)) is Snippet s)
         {
             string after = !enter && k.Char is char ch ? ch.ToString() : "";
-            Expand(s, deleteCount: 1 + _abbr.Length, after, enterAfter: enter);
+            Expand(s, deleteCount: 1 + _abbr.Length, after, enterAfter: enter, swallowed: after);
             return true;
         }
 
@@ -197,18 +220,35 @@ public sealed class AutocompleteController
         return apps.Contains(ContextGuard.ProcessName(_window), StringComparer.OrdinalIgnoreCase) ? s : null;
     }
 
-    private void Expand(Snippet s, int deleteCount, string after, bool enterAfter)
+    private void UpdateSnippetResults()
     {
-        string body = s.Body;
-        // Long or multi line text goes in through the clipboard: typing it would be slow, and typing a new line
-        // presses Enter, which sends the message in chat apps
-        bool paste = body.Contains('\n') || body.Length > 300
-            || _settings.PasteModeApps.Contains(ContextGuard.ProcessName(_window), StringComparer.OrdinalIgnoreCase);
+        var results = _abbr.Length == 0 ? new List<Snippet>()
+            : _snippets.Matcher.Search(_abbr, _settings.MaxResults).Where(x => Usable(x) != null).ToList();
+        _snipResults = results;
+        _selected = 0;
+        _open = results.Count > 0;
+        int session = _session;
+        var window = _window;
+        double scale = _settings.PopupScale;
+        char trigger = _settings.SnippetTrigger;
+        _ui.BeginInvoke(() =>
+        {
+            lock (_gate) { if (_session != session || !ReferenceEquals(_snipResults, results)) return; }
+            if (results.Count == 0) { _popup.Hide(); return; }
+            _popup.ShowSnippets(results, trigger, CaretLocator.Find(window), scale);
+        });
+    }
+
+    // swallowed: the key we kept from the app, typed back if the person cancels a fill in form
+    private void Expand(Snippet s, int deleteCount, string after, bool enterAfter, string swallowed)
+    {
+        var window = _window;
+        bool appPaste = _settings.PasteModeApps.Contains(ContextGuard.ProcessName(window), StringComparer.OrdinalIgnoreCase);
+        var matcher = _snippets.Matcher;
         ResetLocked();
         _atBoundary = after.Length > 0 || enterAfter;
-
-        if (paste) _ui.BeginInvoke(() => TextInjector.Replace(deleteCount, body, usePaste: true, after, enterAfter));
-        else Task.Run(() => TextInjector.Replace(deleteCount, body, usePaste: false, after, enterAfter));
+        // Runs after the hook returns, so the swallowed key is fully handled first
+        _ui.BeginInvoke(() => SnippetInserter.Insert(s, matcher, window, deleteCount, after, enterAfter, appPaste, swallowed));
     }
 
     private bool HandlePopupKey(KeyPress k)
@@ -301,6 +341,7 @@ public sealed class AutocompleteController
         _query = "";
         _snip = false;
         _abbr = "";
+        _snipResults = new List<Snippet>();
         _results = new List<EmojiEntry>();
         _open = false;
         _selected = 0;

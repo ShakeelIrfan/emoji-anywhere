@@ -22,6 +22,7 @@ public interface ITrayActions
     void SetStartup(bool on);
     void OpenSource();
     void Quit();
+    void OpenSnippets();
 }
 
 // The small panel that opens from the tray icon. Every setting lives here.
@@ -50,6 +51,12 @@ public partial class TrayFlyout : Window
         RoutedEventHandler onStartup = (_, _) => { AnimateSwitch(StartupSwitch); _host.SetStartup(StartupSwitch.IsChecked == true); };
         StartupSwitch.Checked += onStartup;
         StartupSwitch.Unchecked += onStartup;
+        SnippetsSwitch.IsChecked = host.Settings.SnippetsEnabled;
+        SnippetsHint.Text = $"Type {host.Settings.SnippetTrigger} and a short code, like {host.Settings.SnippetTrigger}ty";
+        RoutedEventHandler onSnippets = (_, _) => { AnimateSwitch(SnippetsSwitch); _host.Settings.SnippetsEnabled = SnippetsSwitch.IsChecked == true; _host.Settings.Save(); };
+        SnippetsSwitch.Checked += onSnippets;
+        SnippetsSwitch.Unchecked += onSnippets;
+        SnippetsButton.Click += (_, _) => { Close(); _host.OpenSnippets(); };
         QuietSwitch.IsChecked = host.Settings.QuietInShortcodeApps;
         RoutedEventHandler onQuiet = (_, _) => { AnimateSwitch(QuietSwitch); _host.Settings.QuietInShortcodeApps = QuietSwitch.IsChecked == true; _host.Settings.Save(); };
         QuietSwitch.Checked += onQuiet;

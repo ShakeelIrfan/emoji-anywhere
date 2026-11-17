@@ -89,6 +89,8 @@ public sealed class Settings
     // Snippets: type the trigger plus an abbreviation, like ";addr", to insert saved text
     public bool SnippetsEnabled { get; set; } = true;
     public char SnippetTrigger { get; set; } = ';';
+    // A folder that syncs between PCs (OneDrive, Dropbox, Google Drive). Empty means this PC only.
+    public string? SnippetSyncFolder { get; set; }
 
     // Apps that reject typed unicode and need the clipboard paste method
     public List<string> PasteModeApps { get; set; } = new();

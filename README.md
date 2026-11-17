@@ -57,6 +57,21 @@ Press **Esc** to close the popup and keep typing normally.
 - **Your clipboard is safe.** If an app needs the emoji pasted in, your clipboard gets put back right after.
 - **Looks native.** Follows your Windows light or dark mode, Windows 11 style.
 
+## Snippets: stop retyping the same text
+
+Save text once, then type a short code anywhere to insert it. `;addr` becomes your full address, `;ty` becomes "Thank you so much!".
+
+- **Works in the same apps as emoji**, including Discord and Slack.
+- **Search popup.** Type `;` and a letter or two to see your snippets, then pick one with the arrow keys and Enter.
+- **Fills things in for you.** `{date}`, `{time}`, `{clipboard}`, and `{cursor}` for where the cursor ends up.
+- **Fill in forms.** `Hi {input:Name}, your order is {choice:Status|ready,shipped}` asks for the name and status first, then types the whole thing.
+- **Formatting.** Bold, italic, underline, links and lists keep their formatting in Gmail, Outlook and Word.
+- **Folders** you can turn on and off, snippets that only work in certain apps, and snippets inside snippets.
+- **Sync between your PCs** through a folder you already sync (OneDrive, Dropbox or Google Drive). No account, nothing goes to a server of ours.
+- **Bring your snippets with you.** Import from espanso and Beeftext, export to a file.
+
+Open the tray panel and click **Edit snippets** to add your own.
+
 ## Privacy you can check
 
 An app that sees your keyboard has to earn your trust. Here's how this one does it:
@@ -64,7 +79,7 @@ An app that sees your keyboard has to earn your trust. Here's how this one does 
 | Promise | How you can check |
 |---|---|
 | No internet, ever | The code has no networking at all. Search the repo for `HttpClient`, `WebRequest` or `Socket` and you'll find nothing. Or block it in your firewall and watch it keep working. |
-| Never saves what you type | Typed text only lives in memory while the popup is open, then it's gone. The only file it writes is your settings and a count of which emojis you picked. |
+| Never saves what you type | Typed text only lives in memory while the popup is open, then it's gone. It only writes your settings, a count of which emojis you picked, and the snippets you saved yourself. |
 | No accounts, no tracking | There's nothing to sign up for and nothing to send data to. |
 | The download matches the code | Release builds are made by GitHub Actions straight from this public code, with a signed record of which commit they came from. Check any download with `gh attestation verify EmojiAnywhere.exe --repo ShakeelIrfan/emoji-anywhere`. |
 
@@ -86,7 +101,8 @@ Emoji Anywhere lives in your system tray:
 
 - Turn it on or off
 - Pause for 1 hour
-- Settings: start with Windows, ignored apps, how many results to show, popup size
+- Snippets on or off, and Edit snippets
+- Settings: start with Windows, ignored apps and sites, how many results to show, popup size
 - Quit
 
 ## FAQ
@@ -99,6 +115,9 @@ It's meant to stay out of games. Add any game to the ignored apps list and it wo
 
 **Does it work in apps running as administrator?**
 Windows doesn't let normal apps read keys typed into admin windows, so not unless you run Emoji Anywhere as admin too.
+
+**Can I sync snippets without OneDrive?**
+Any folder that syncs between your PCs works, like Dropbox or Google Drive. Pick it under **Sync** in the snippets window, then pick the same folder on your other PCs. Each PC also keeps its own copy.
 
 **Is it really free?**
 Yes. No ads, no premium version, no catch.
@@ -115,7 +134,7 @@ dotnet build src/EmojiAnywhere
 
 ## Tests
 
-`tests/SearchTest` checks the emoji list and search on every push. `tests/LiveTest` runs the real app and types into windows it opens itself (a text box, Edge, Chrome, VS Code). See [tests/README.md](tests/README.md) and the latest [results](docs/TESTING.md).
+`tests/SearchTest` checks the emoji list, search, and the snippet engine (fill-ins, sync merge, import) on every push. `tests/FlyoutTest` drives the tray panel and the snippets window. `tests/LiveTest` runs the real app and types into windows it opens itself (a text box, Edge, Chrome, VS Code). See [tests/README.md](tests/README.md) and the latest [results](docs/TESTING.md).
 
 ## Contributing
 

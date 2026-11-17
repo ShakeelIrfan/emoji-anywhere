@@ -28,3 +28,4 @@ dotnet run --project tests/LiveTest -- <path to EmojiAnywhere.exe> <empty test f
 | `browser` | Microsoft Edge |
 | `chrome` | Google Chrome |
 | `vscode` | VS Code (Electron, like Discord and WhatsApp desktop) |
+| `snippets` | Snippets in a plain text box: expanding, the search popup, Backspace, fill-ins like `{date}` and `{cursor}`, nested and popup only snippets, multi line paste with the clipboard put back, password fields |

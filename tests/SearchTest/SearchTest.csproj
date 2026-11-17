@@ -11,6 +11,8 @@
     <Compile Include="..\..\src\EmojiAnywhere\Core\Storage.cs" />
     <Compile Include="..\..\src\EmojiAnywhere\Core\TitleRules.cs" />
     <Compile Include="..\..\src\EmojiAnywhere\Core\Snippets.cs" />
+    <Compile Include="..\..\src\EmojiAnywhere\Core\SnippetText.cs" />
+    <Compile Include="..\..\src\EmojiAnywhere\Core\SnippetImport.cs" />
     <EmbeddedResource Include="..\..\src\EmojiAnywhere\Data\*.json" />
   </ItemGroup>
 </Project>

@@ -80,6 +80,51 @@ public sealed class SuggestionPopup : Window
         Highlight();
     }
 
+    // Snippet matches: ";abbr", its name, and the start of its text
+    public void ShowSnippets(List<Snippet> items, char trigger, CaretLocator.Spot at, double scale)
+    {
+        ApplyTheme(null);
+        _list.Children.Clear();
+        for (int i = 0; i < items.Count; i++) _list.Children.Add(SnippetRow(items[i], trigger, i, scale));
+        _selected = 0;
+        Highlight();
+        if (!IsVisible) base.Show();
+        UpdateLayout();
+        Place(at);
+    }
+
+    private UIElement SnippetRow(Snippet s, char trigger, int index, double scale)
+    {
+        string preview = s.Body.ReplaceLineEndings(" ").Trim();
+        if (preview.Length > 42) preview = preview[..41].TrimEnd() + "…";
+        var font = new FontFamily("Segoe UI Variable Text, Segoe UI");
+        var row = new Border
+        {
+            CornerRadius = new CornerRadius(5),
+            Padding = new Thickness(10 * scale, 5 * scale, 12 * scale, 5 * scale),
+            Cursor = Cursors.Hand,
+            MaxWidth = 420 * scale,
+            Child = new StackPanel
+            {
+                Children =
+                {
+                    new StackPanel
+                    {
+                        Orientation = Orientation.Horizontal,
+                        Children =
+                        {
+                            new TextBlock { Text = trigger + s.Abbreviation, FontFamily = font, FontSize = 13 * scale, FontWeight = FontWeights.SemiBold },
+                            new TextBlock { Text = s.Label.Length > 0 && !s.Label.Equals(s.Abbreviation, StringComparison.OrdinalIgnoreCase) ? "  " + s.Label : "", FontFamily = font, FontSize = 13 * scale, Opacity = 0.75, TextTrimming = TextTrimming.CharacterEllipsis },
+                        }
+                    },
+                    new TextBlock { Text = preview, FontFamily = font, FontSize = 11.5 * scale, Opacity = 0.6, TextTrimming = TextTrimming.CharacterEllipsis, Margin = new Thickness(0, 1 * scale, 0, 0) },
+                }
+            }
+        };
+        row.MouseLeftButtonDown += (_, _) => ItemClicked?.Invoke(index);
+        return row;
+    }
+
     public new void Hide()
     {
         if (!IsVisible) return;

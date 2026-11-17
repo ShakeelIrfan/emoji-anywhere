@@ -16,7 +16,8 @@ public static class ContextGuard
     {
         string name = ProcessName(hwnd);
         if (name.Length == 0) return true; // could not read it, likely an admin window
-        if (name.Equals("EmojiAnywhere", StringComparison.OrdinalIgnoreCase)) return false;
+        // In our own windows: emoji yes, but never expand snippets while you are writing one in the editor
+        if (name.Equals("EmojiAnywhere", StringComparison.OrdinalIgnoreCase)) return forSnippets;
         if (settings.IgnoredApps.Contains(name, StringComparer.OrdinalIgnoreCase)) return true;
         bool quiet = settings.QuietInShortcodeApps && !forSnippets;
         if (quiet && Settings.ShortcodeApps.Contains(name, StringComparer.OrdinalIgnoreCase)) return true;
