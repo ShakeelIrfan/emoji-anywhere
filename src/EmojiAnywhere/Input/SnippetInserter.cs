@@ -13,7 +13,8 @@ public static class SnippetInserter
     public static void Insert(Snippet s, SnippetMatcher matcher, IntPtr window, int deleteCount, string after, bool enterAfter, bool appPaste, string swallowed)
     {
         var values = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        var fields = SnippetText.Fields(SnippetText.ResolveNested(s.Body, matcher.FindAny));
+        var content = Content(s);
+        var fields = SnippetText.Fields(SnippetText.ResolveNested(content.Plain, matcher.FindAny));
         if (fields.Count > 0)
         {
             var filled = SnippetForm.Ask(s.Label.Length > 0 ? s.Label : s.Abbreviation, fields);
@@ -25,17 +26,34 @@ public static class SnippetInserter
                 return;
             }
             foreach (var kv in filled) values[kv.Key] = kv.Value;
-            Delay(() => Put(s, matcher, values, deleteCount, after, enterAfter, appPaste)); // let the app take focus back first
+            Delay(() => Put(content, matcher, values, deleteCount, after, enterAfter, appPaste)); // let the app take focus back first
             return;
         }
-        Put(s, matcher, values, deleteCount, after, enterAfter, appPaste);
+        Put(content, matcher, values, deleteCount, after, enterAfter, appPaste);
     }
 
-    private static void Put(Snippet s, SnippetMatcher matcher, Dictionary<string, string> values, int deleteCount, string after, bool enterAfter, bool appPaste)
+    private sealed record Parts(string Plain, string? Html, string? Rtf);
+
+    // Formatted snippets are rebuilt from their RTF every time, through the same converter the editor uses.
+    // So what gets pasted always matches what the editor shows, unsafe links are dropped, and anything
+    // else hidden in a synced or imported file (embedded objects, odd HTML) never reaches the app.
+    private static Parts Content(Snippet s)
+    {
+        if (!s.IsRich) return new Parts(s.Body, null, null);
+        try
+        {
+            var doc = new System.Windows.Documents.FlowDocument();
+            RichTextConvert.LoadRtf(doc, s.Rtf!);
+            return new Parts(RichTextConvert.Plain(doc), RichTextConvert.Html(doc), RichTextConvert.Rtf(doc));
+        }
+        catch { return new Parts(s.Body, null, null); }
+    }
+
+    private static void Put(Parts s, SnippetMatcher matcher, Dictionary<string, string> values, int deleteCount, string after, bool enterAfter, bool appPaste)
     {
         var now = DateTime.Now;
         Func<string> clip = () => { try { return Clipboard.ContainsText() ? Clipboard.GetText() : ""; } catch { return ""; } };
-        var plain = SnippetText.Render(s.Body, values, clip, now, matcher.FindAny);
+        var plain = SnippetText.Render(s.Plain, values, clip, now, matcher.FindAny);
         int left = plain.CursorBack;
         if (left > 0)
         {
@@ -43,7 +61,7 @@ public static class SnippetInserter
             enterAfter = false;     // pressing Enter and then moving the cursor would make no sense
         }
 
-        if (s.IsRich)
+        if (s.Html != null || s.Rtf != null)
         {
             string? html = s.Html == null ? null : SnippetText.RenderHtml(s.Html, values, clip, now, matcher.FindAny);
             string? rtf = s.Rtf == null ? null : SnippetText.RenderRtf(s.Rtf, values, clip, now, matcher.FindAny);

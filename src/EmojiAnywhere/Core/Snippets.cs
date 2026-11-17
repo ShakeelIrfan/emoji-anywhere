@@ -32,7 +32,8 @@ public sealed class Snippet
     public DateTime UpdatedUtc { get; set; } = DateTime.UtcNow;
     public bool Deleted { get; set; }              // kept as a marker so a delete also syncs to other PCs
 
-    public bool IsRich => Format == "rich" && (Html != null || Rtf != null);
+    // The RTF is the source of truth for formatting. HTML is rebuilt from it when inserting, never trusted as stored.
+    public bool IsRich => Format == "rich" && !string.IsNullOrEmpty(Rtf);
 
     public Snippet Clone()
     {

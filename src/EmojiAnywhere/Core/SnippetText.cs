@@ -28,17 +28,39 @@ public static class SnippetText
 
     public static bool HasPlaceholders(string s) => s.Contains('{');
 
+    // How much one insert may add in total. Stops a snippet that includes another one many times
+    // (which includes another one many times...) from building something huge and freezing the app.
+    private sealed class Budget
+    {
+        public int Chars = SnippetMatcher.MaxBody;
+        public int Refs = 50;
+
+        public string Take(string text)
+        {
+            if (Chars <= 0) return "";
+            if (text.Length > Chars) text = text[..Chars];
+            Chars -= text.Length;
+            return text;
+        }
+    }
+
     // Replaces {snippet:abbr} with that snippet's plain text, a few levels deep (so loops end)
-    public static string ResolveNested(string body, Func<string, Snippet?> find, int depth = 0)
+    public static string ResolveNested(string body, Func<string, Snippet?> find, int depth = 0) => ResolveNested(body, find, depth, new Budget());
+
+    private static string ResolveNested(string body, Func<string, Snippet?> find, int depth, Budget budget)
     {
         if (!body.Contains("{snippet:", StringComparison.OrdinalIgnoreCase)) return body;
-        return Token.Replace(body, m =>
+        // At most 50 includes in total and every level cut to the size limit, so the work stays small
+        string result = Token.Replace(body, m =>
         {
             if (!m.Groups["name"].Value.Equals("snippet", StringComparison.OrdinalIgnoreCase)) return m.Value;
-            if (depth >= MaxNesting) return ""; // too deep (or a snippet that includes itself): stop here
+            // Too deep (or a snippet that includes itself), or too many includes: stop here
+            if (depth >= MaxNesting || budget.Refs <= 0) return "";
+            budget.Refs--;
             var inner = find(m.Groups["arg"].Value.Trim());
-            return inner == null ? "" : ResolveNested(inner.Body, find, depth + 1);
+            return inner == null ? "" : ResolveNested(inner.Body, find, depth + 1, budget);
         });
+        return result.Length > SnippetMatcher.MaxBody ? result[..SnippetMatcher.MaxBody] : result;
     }
 
     // The fields to ask for, in order, each name once
@@ -88,25 +110,31 @@ public static class SnippetText
     {
         // Doubled braces mean a literal brace (plain text only; RTF uses its own escapes)
         if (plainEscapes) body = Unescape(body, keepEscapes: true);
+        var budget = new Budget(); // everything filled in counts, so 1000 copies of {clipboard} can't blow up either
         string result = token.Replace(body, m =>
         {
             string name = m.Groups["name"].Value.ToLowerInvariant();
             string arg = m.Groups["arg"].Value;
             switch (name)
             {
-                case "date": return escape(Format(now, arg, "d"));
-                case "time": return escape(Format(now, arg, "t"));
-                case "clipboard": return escape(SafeClipboard(clipboard));
+                case "date": return escape(budget.Take(Format(now, arg, "d")));
+                case "time": return escape(budget.Take(Format(now, arg, "t")));
+                case "clipboard": return escape(budget.Take(SafeClipboard(clipboard)));
                 case "cursor": return CursorMarker;
                 case "snippet":
                     if (find == null) return m.Value;
+                    if (budget.Refs <= 0 || budget.Chars <= 0) return "";
+                    budget.Refs--;
                     var inner = find(arg.Trim());
-                    return inner == null ? "" : escape(Fill(ResolveNested(inner.Body, find, 1), values, clipboard, now, x => x, Token, plainEscapes: true, null).Replace(CursorMarker, ""));
+                    if (inner == null) return "";
+                    // Its own budget for the includes inside it; this outer budget then caps what actually goes in
+                    string nested = Fill(ResolveNested(inner.Body, find, 1), values, clipboard, now, x => x, Token, plainEscapes: true, null);
+                    return escape(budget.Take(nested.Replace(CursorMarker, "")));
                 case "input":
                 case "choice":
                     string label = (name == "choice" ? arg.Split('|')[0] : arg).Trim();
                     if (label.Length == 0) label = name == "choice" ? "Choice" : "Text";
-                    return escape(values.TryGetValue(label, out var v) ? v : "");
+                    return escape(budget.Take(values.TryGetValue(label, out var v) ? v : ""));
                 default: return m.Value;
             }
         });

@@ -176,6 +176,22 @@ Check("no rules, nothing ignored", !TitleRules.Ignored("Jira", Array.Empty<strin
     Check("import our own export", ours.Count == 1 && ours[0].Abbreviation == "a1");
     Check("import junk is empty, never a crash", SnippetImport.Read("{not json").Count == 0 && SnippetImport.Read("random words").Count == 0);
 
+    // Security: a snippet bomb can't build something huge
+    var big = new string('x', 10_000);
+    var bomb = new Dictionary<string, Snippet>(StringComparer.OrdinalIgnoreCase)
+    {
+        ["a"] = new() { Body = string.Concat(Enumerable.Repeat("{snippet:b}", 100)) },
+        ["b"] = new() { Body = string.Concat(Enumerable.Repeat("{snippet:c}", 100)) },
+        ["c"] = new() { Body = big },
+    };
+    var swb = Stopwatch.StartNew();
+    string blown = SnippetText.Render("{snippet:a}", none, clip, now, k => bomb.TryGetValue(k, out var v) ? v : null).Text;
+    Check("security: nested snippet bomb is capped", blown.Length <= SnippetMatcher.MaxBody && blown.Length > 0 && swb.ElapsedMilliseconds < 2000, $"{blown.Length} chars in {swb.ElapsedMilliseconds} ms");
+    string manyClips = SnippetText.Render(string.Concat(Enumerable.Repeat("{clipboard}", 1000)), none, () => new string('y', 100_000), now).Text;
+    Check("security: repeated clipboard is capped", manyClips.Length <= SnippetMatcher.MaxBody, $"{manyClips.Length} chars");
+    var importedRich = SnippetImport.Read(System.Text.Json.JsonSerializer.Serialize(new SnippetLibraryFile { Snippets = { new() { Abbreviation = "r", Body = "safe", Format = "rich", Html = "<a href=\"javascript:x\">evil</a>" } } }));
+    Check("security: imported HTML is never kept", importedRich.Count == 1 && importedRich[0].Html == null && !importedRich[0].IsRich);
+
     // Two PCs sharing one sync folder
     string syncDir = Path.Combine(data, "sync");
     Directory.CreateDirectory(syncDir);

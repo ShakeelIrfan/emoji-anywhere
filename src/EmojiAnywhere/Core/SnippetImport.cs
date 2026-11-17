@@ -27,7 +27,9 @@ public static class SnippetImport
         try
         {
             var f = JsonSerializer.Deserialize<SnippetLibraryFile>(json);
-            return f?.Snippets?.Where(s => s != null && !s.Deleted && s.Body != null).Select(s => s.Clone()).ToList() ?? new();
+            // Stored HTML from a file is never kept; it is rebuilt from the formatting when the snippet is used
+            return f?.Snippets?.Where(s => s != null && !s.Deleted && s.Body != null)
+                .Select(s => { var c = s.Clone(); c.Html = null; return c; }).ToList() ?? new();
         }
         catch { return new(); }
     }
